@@ -1,8 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+
+import "./index.css";
+import "./App.css";
 
 import Root from "./pages/Root";
 import Home from "./pages/Home";
@@ -14,10 +16,11 @@ import GenerateResume from "./pages/GenerateResume";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-    <Toaster/>
+      <Toaster position="top-right" reverseOrder={false} />
+
       <Routes>
         <Route path="/" element={<Root />}>
-          <Route path="" element={<Home />} />
+          <Route index element={<Home />} />
           <Route path="about" element={<About />} />
           <Route path="services" element={<Service />} />
           <Route path="contact" element={<Contact />} />

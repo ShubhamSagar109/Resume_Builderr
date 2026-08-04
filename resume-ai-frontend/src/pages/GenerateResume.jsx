@@ -68,11 +68,47 @@ const handleGenerate = async () => {
 
     console.log("API Response:", response);
 
-    // If backend returns { data: {...} }
+    // Get the resume data from response
     const resumeData = response.data ? response.data : response;
 
-    setData(resumeData);
-    reset(resumeData);
+    // Format the data to match the form structure
+    const formattedData = {
+      personalInformation: {
+        fullName: resumeData.personalInformation?.fullName || 
+                  resumeData.fullName || 
+                  resumeData.name || "",
+        email: resumeData.personalInformation?.email || 
+               resumeData.email || "",
+        phoneNumber: resumeData.personalInformation?.phoneNumber || 
+                     resumeData.phoneNumber || 
+                     resumeData.phone || "",
+        location: resumeData.personalInformation?.location || 
+                  resumeData.location || "",
+        linkedin: resumeData.personalInformation?.linkedin || 
+                  resumeData.linkedin || "",
+        gitHub: resumeData.personalInformation?.gitHub || 
+                resumeData.gitHub || 
+                resumeData.github || "",
+        portfolio: resumeData.personalInformation?.portfolio || 
+                   resumeData.portfolio || "",
+      },
+      summary: resumeData.summary || 
+               resumeData.profile || 
+               resumeData.about || "",
+      skills: Array.isArray(resumeData.skills) ? resumeData.skills : [],
+      experience: Array.isArray(resumeData.experience) ? resumeData.experience : [],
+      education: Array.isArray(resumeData.education) ? resumeData.education : [],
+      certifications: Array.isArray(resumeData.certifications) ? resumeData.certifications : [],
+      projects: Array.isArray(resumeData.projects) ? resumeData.projects : [],
+      achievements: Array.isArray(resumeData.achievements) ? resumeData.achievements : [],
+      languages: Array.isArray(resumeData.languages) ? resumeData.languages : [],
+      interests: Array.isArray(resumeData.interests) ? resumeData.interests : [],
+    };
+
+    console.log("Formatted Data:", formattedData);
+
+    setData(formattedData);
+    reset(formattedData);
 
     toast.success("Resume Generated Successfully!");
 
@@ -80,8 +116,8 @@ const handleGenerate = async () => {
     setShowFormUI(true);
     setShowResumeUI(false);
   } catch (error) {
-    console.error(error);
-    toast.error("Error Generating Resume!");
+    console.error("Generation Error:", error);
+    toast.error(error.response?.data?.message || "Error Generating Resume!");
   } finally {
     setLoading(false);
     setDescription("");
@@ -258,6 +294,19 @@ const handleGenerate = async () => {
             <FaTrash /> Clear
           </button>
         </div>
+        {/* Debug section - shows what data was received */}
+        {!loading && data && Object.keys(data).length > 0 && (
+          <div className="mt-4 p-3 bg-base-100 rounded-lg text-left">
+            <details>
+              <summary className="text-sm font-medium cursor-pointer">
+                Debug: View Received Data
+              </summary>
+              <pre className="mt-2 text-xs overflow-auto max-h-40">
+                {JSON.stringify(data, null, 2)}
+              </pre>
+            </details>
+          </div>
+        )}
       </div>
     );
   }
@@ -302,3 +351,6 @@ const handleGenerate = async () => {
 };
 
 export default GenerateResume;
+
+
+
