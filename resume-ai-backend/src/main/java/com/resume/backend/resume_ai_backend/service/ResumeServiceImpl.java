@@ -1,89 +1,154 @@
 package com.resume.backend.resume_ai_backend.service;
 
+import com.fasterxml.jackson.core.json.JsonReadFeature;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.json.JSONObject;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class ResumeServiceImpl implements ResumeService {
+public class ResumeServiceImpl implements ResumeService{
 
-    private ChatClient chatClient;
-
-    public ResumeServiceImpl(ChatClient.Builder builder) {
-        this.chatClient = builder.build();
+    private final ChatClient chatClient;
+    public final ObjectMapper objectMapper;
+    public ResumeServiceImpl(
+            ChatClient.Builder builder,
+            ObjectMapper objectMapper
+    ){
+        this.chatClient=builder.build();
+        this.objectMapper=objectMapper;
     }
-
     @Override
-    public   Map<String, Object> generateResumeResponse(String userResumeDescription) throws IOException {
+    public Map<String, Object> generateResumeResponse(String userResumeDescription) throws IOException {
 
-        String promptString = this.loadPromptFromFile("resume_prompt.txt");
-        String promptContent = this.putValuesToTemplate(promptString, Map.of(
-                "userDescription", userResumeDescription
-        ));
-        Prompt prompt = new Prompt(promptContent);
-        String response = chatClient.prompt(prompt).call().content();
-        Map<String, Object> stringObjectMap = parseMultipleResponses(response);
-        //modify :
-        return stringObjectMap;
+        //Load prompt from resources
+        String promptString=loadPromptFromFile("resume_prompt.txt");
+
+        //Insert user description into prompt
+        String promptContent=putValuesToTemplate(
+                promptString,
+                Map.of(
+                        "userDescription",userResumeDescription
+                )
+        );
+        //Create AI prompt
+        Prompt prompt=new Prompt(promptContent);
+
+        //Call AI
+        String response=chatClient
+                .prompt(prompt)
+                .call().content();
+
+        //Parse AI response
+
+        Map<String,Object>resumeData=parseResumeResponse(response);
+        return resumeData;
     }
 
+    //   LOAD PROMPT
 
-    String loadPromptFromFile(String filename) throws IOException {
-        Path path = new ClassPathResource(filename).getFile().toPath();
+    private String loadPromptFromFile(String filename) throws IOException {
+        ClassPathResource resource=new ClassPathResource(filename);
+
+        Path path=resource.getFile().toPath();
         return Files.readString(path);
     }
 
-    String putValuesToTemplate(String template, Map<String, String> values) {
-        for (Map.Entry<String, String> entry : values.entrySet()) {
+    //     REPLACE TEMPLATE VALUES
 
-            template = template.replace("{{" + entry.getKey() + "}}", entry.getValue());
-
+    private String putValuesToTemplate(
+            String template,
+            Map<String,String>values
+    ){
+        for(Map.Entry<String,String>entry:values.entrySet()){
+            template=template.replace(
+                    "{{"+entry.getKey()+"}}", entry.getValue()
+            );
         }
+
         return template;
     }
 
+    //    PARSE AI RESPONSE
 
-    public static Map<String, Object> parseMultipleResponses(String response) {
-        Map<String, Object> jsonResponse = new HashMap<>();
-
-        // Extract content inside <think> tags
-        int thinkStart = response.indexOf("<think>") + 7;
-        int thinkEnd = response.indexOf("</think>");
-        if (thinkStart != -1 && thinkEnd != -1) {
-            String thinkContent = response.substring(thinkStart, thinkEnd).trim();
-            jsonResponse.put("think", thinkContent);
-        } else {
-            jsonResponse.put("think", null); // Handle missing <think> tags
+    private Map<String,Object>parseResumeResponse(
+            String response
+    ) throws IOException {
+        if(response==null || response.isBlank()){
+            throw new IOException("AI returned an empty response.");
         }
+        String cleanedResponse=cleanAiResponse(response);
+        try{
+            ObjectMapper jsonMapper=objectMapper.copy();
 
-        // Extract content that is in JSON format
-        int jsonStart = response.indexOf("```json") + 7; // Start after ```json
-        int jsonEnd = response.lastIndexOf("```");       // End before ```
-        if (jsonStart != -1 && jsonEnd != -1 && jsonStart < jsonEnd) {
-            String jsonContent = response.substring(jsonStart, jsonEnd).trim();
-            try {
-                // Convert JSON string to Map using Jackson ObjectMapper
-                ObjectMapper objectMapper = new ObjectMapper();
-                Map<String, Object> dataContent = objectMapper.readValue(jsonContent, Map.class);
-                jsonResponse.put("data", dataContent);
-            } catch (Exception e) {
-                jsonResponse.put("data", null); // Handle invalid JSON
-                System.err.println("Invalid JSON format in the response: " + e.getMessage());
+            JsonReadFeature[]features={
+                    JsonReadFeature.ALLOW_JAVA_COMMENTS,
+                    JsonReadFeature.ALLOW_YAML_COMMENTS,
+                    JsonReadFeature.ALLOW_TRAILING_COMMA
+            };
+
+            for(JsonReadFeature feature:features){
+                jsonMapper.configure(
+                        feature.mappedFeature(),
+                        true
+                );
             }
-        } else {
-            jsonResponse.put("data", null); // Handle missing JSON
+            JsonNode jsonNode=
+                    jsonMapper.readTree(cleanedResponse);
+            if(jsonNode==null || !jsonNode.isObject()){
+                throw new IOException(
+                        "AI response is not a JSON object."
+                );
+            }
+
+            // Convert JsonNode into Map<String,Object>
+
+            return jsonMapper.convertValue(
+                    jsonNode,
+                    new TypeReference<Map<String, Object>>() {}
+            );
+
+        }catch (Exception e){
+            throw new IOException(
+                    "AI returned invalid JSON: "+e.getMessage(),e
+            );
+        }
+    }
+
+    // CLEAN AI RESPONSE
+
+    private String cleanAiResponse(String response){
+        String cleaned=response.trim();
+
+        if(cleaned.startsWith("```json")){
+            cleaned=cleaned.substring(7).trim();
+        }else if(cleaned.startsWith("```")){
+            cleaned=cleaned.substring(3).trim();
         }
 
-        return jsonResponse;
+        if(cleaned.endsWith("```")){
+            cleaned=cleaned.substring(0,cleaned.length()-3).trim();
+        }
+
+        // Find first JSON object
+        int firstBrace=cleaned.indexOf("{");
+
+        // Find last JSON object
+        int lastBrace=cleaned.lastIndexOf("}");
+
+        if(firstBrace >=0 && lastBrace>=0 && lastBrace>firstBrace){
+            cleaned=cleaned.substring(firstBrace,
+                    lastBrace+1);
+        }
+        return cleaned.trim();
     }
 }
-

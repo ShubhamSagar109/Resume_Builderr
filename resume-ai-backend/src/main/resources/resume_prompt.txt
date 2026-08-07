@@ -1,53 +1,269 @@
-Generate a professional IT job resume in JSON format based on the following description. Ensure the JSON is consistent, well-structured, and contains all specified keys, even if some values are empty or null. Use the exact keys provided below and maintain their hierarchy.
+CRITICAL JSON RULES:
 
-Input Description:
+1. Return ONLY valid JSON.
+2. Do NOT use markdown.
+3. Do NOT use ```json.
+4. Do NOT add comments.
+5. Do NOT use // comments.
+6. Do NOT use /* comments */.
+7. Do NOT add explanations before or after JSON.
+8. Use double quotes for all JSON keys and string values.
+9. Never invent personal information.
+10. If information is not provided by the user, use an empty string "".
+11. If an array has no information, return [].
+12. Preserve the user's personal information exactly as provided.
+13. Do not create fake certifications, achievements, companies, projects, universities, or work experience.
+
+Your entire response must be one valid JSON object.
+
+Generate a professional IT/software engineering resume in JSON format based ONLY on the user's description.
+
+USER DESCRIPTION:
 "{{userDescription}}"
 
-JSON Structure Requirements:
-personalInformation: Include the following keys:
-fullName (string)
-email (string)
-phoneNumber (string)
-location (string)
-linkedIn (string or null if not provided)
-gitHub (string or null if not provided)
-portfolio (string or null if not provided)
-summary: A brief overview of skills, experience, and career goals (string).
-skills: List of object that contain two keys 'title' and 'level'
+IMPORTANT:
+Return EXACTLY ONE valid JSON object.
+Return ONLY JSON.
+Do NOT return Markdown.
+Do NOT use `json.
+Do NOT use ` anywhere.
+Do NOT add explanations.
+Do NOT add text before or after the JSON.
 
-experience: A list of job roles. Each job role should include:
-jobTitle (string)
-company (string)
-location (string)
-duration (string, e.g., "Jan 2020 - Present")
-responsibility(string)
+The JSON MUST follow EXACTLY this structure:
 
-education: A list of degrees. Each degree should include:
-degree (string)
-university (string)
-location (string)
-graduationYear (string)
+{
+"personalInformation": {
+"fullName": "",
+"email": "",
+"phoneNumber": "",
+"location": "",
+"linkedin": "",
+"gitHub": "",
+"portfolio": ""
+},
+"summary": "",
+"skills": [],
+"experience": [],
+"education": [],
+"certifications": [],
+"projects": [],
+"achievements": [],
+"languages": [],
+"interests": []
+}
 
-certifications: A list of certifications. Each certification should include:
-title (string)
-issuingOrganization (string)
-year (string)
+PERSONAL INFORMATION RULES:
 
-projects: A list of key projects. Each project should include:
-title (string)
-description (string)
-technologiesUsed (array of strings)
-githubLink (string or null if not provided)
+The "personalInformation" object MUST contain exactly these keys:
 
-achievements: A list achievements that contains objects of keys
-title (string)
-year(string)
-extraInformation(string)
+"fullName"
+"email"
+"phoneNumber"
+"location"
+"linkedin"
+"gitHub"
+"portfolio"
 
-languages: A list of spoken languages objects contain keys
-id(number)
-name(string)
+Rules:
 
-interests: A list of additional interests or hobbies related to technology or professional development  [list of objects having keys].
-id(number)
-name(string)
+* "fullName" MUST be inside "personalInformation".
+* "email" MUST be inside "personalInformation".
+* "phoneNumber" MUST be inside "personalInformation".
+* "location" MUST be inside "personalInformation".
+* "linkedin" MUST be inside "personalInformation".
+* "gitHub" MUST be inside "personalInformation".
+* "portfolio" MUST be inside "personalInformation".
+* NEVER use "phone_number".
+* NEVER use "github".
+* NEVER move personal information fields to the root level.
+* Do NOT invent personal information.
+* If unavailable, use "".
+
+SUMMARY RULES:
+
+"summary" MUST be a professional 2-4 sentence resume summary.
+
+The summary should:
+
+* Mention the candidate's main technical skills when provided.
+* Mention relevant experience when provided.
+* Mention relevant projects when provided.
+* Mention the candidate's career goal when provided.
+* Be suitable for an IT/software engineering resume.
+* Never be empty when enough information exists.
+* Do not copy the user's description word-for-word.
+* Do not invent information.
+
+SKILLS RULES:
+
+"skills" MUST be an array of objects.
+
+Each skill object MUST contain exactly:
+
+{
+"title": "",
+"level": ""
+}
+
+Use the technical skills explicitly provided by the user.
+
+EXPERIENCE RULES:
+
+"experience" MUST be an array of objects.
+
+Each experience object MUST contain exactly:
+
+{
+"jobTitle": "",
+"company": "",
+"location": "",
+"duration": "",
+"responsibility": ""
+}
+
+Do not invent employment history.
+
+If no experience is provided, return:
+
+"experience": []
+
+EDUCATION RULES:
+
+"education" MUST be an array of objects.
+
+Each education object MUST contain exactly:
+
+{
+"degree": "",
+"university": "",
+"location": "",
+"graduationYear": ""
+}
+
+Do not invent educational information.
+
+If no education is provided, return:
+
+"education": []
+
+CERTIFICATIONS RULES:
+
+"certifications" MUST be an array of objects.
+
+Each certification object MUST contain exactly:
+
+{
+"title": "",
+"issuingOrganization": "",
+"year": ""
+}
+
+Do not invent certifications.
+
+If no certifications are provided, return:
+
+"certifications": []
+
+PROJECTS RULES:
+
+"projects" MUST be an array of objects.
+
+Each project object MUST contain exactly:
+
+{
+"title": "",
+"description": "",
+"technologiesUsed": [],
+"githubLink": ""
+}
+
+"technologiesUsed" MUST always be an array of strings.
+
+Do not invent project details.
+
+If no projects are provided, return:
+
+"projects": []
+
+ACHIEVEMENTS RULES:
+
+"achievements" MUST be an array of objects.
+
+Each achievement object MUST contain exactly:
+
+{
+"title": "",
+"year": "",
+"extraInformation": ""
+}
+
+Do not invent achievements.
+
+If no achievements are provided, return:
+
+"achievements": []
+
+LANGUAGES RULES:
+
+"languages" MUST be an array of objects.
+
+Each language object MUST contain exactly:
+
+{
+"id": 0,
+"name": ""
+}
+
+"id" MUST be a number.
+
+Use sequential numeric IDs starting from 1 when multiple languages exist.
+
+If no languages are provided, return:
+
+"languages": []
+
+INTERESTS RULES:
+
+"interests" MUST be an array of objects.
+
+Each interest object MUST contain exactly:
+
+{
+"id": 0,
+"name": ""
+}
+
+"id" MUST be a number.
+
+Use sequential numeric IDs starting from 1 when multiple interests exist.
+
+If no interests are provided, return:
+
+"interests": []
+
+FINAL JSON RULES:
+
+1. Return ONLY valid JSON.
+2. Return EXACTLY ONE JSON object.
+3. The response MUST start with { and end with }.
+4. Every key MUST use double quotes.
+5. Every string MUST use double quotes.
+6. Arrays MUST use [].
+7. Objects MUST use {}.
+8. Do NOT include comments.
+9. Do NOT include trailing commas.
+10. Do NOT use Markdown.
+11. Do NOT add explanations.
+12. Do NOT invent information.
+13. If a string value is unavailable, use "".
+14. If an array section has no information, use [].
+15. Use the EXACT key names specified above.
+16. NEVER use "phone_number".
+17. NEVER use "github" for the GitHub field; use "gitHub".
+18. NEVER move "personalInformation" fields to the root.
+19. The JSON structure MUST remain exactly the same regardless of the user's description.
+
+Now generate the resume from:
+
+"{{userDescription}}"
