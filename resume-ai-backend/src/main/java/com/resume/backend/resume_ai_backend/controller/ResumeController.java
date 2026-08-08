@@ -17,7 +17,7 @@ import java.util.Map;
 @RequestMapping("/api/v1/resume")
 public class ResumeController {
 
-    private ResumeService resumeService;
+    private final ResumeService resumeService;
 
     public ResumeController(ResumeService resumeService) {
         this.resumeService = resumeService;
@@ -29,8 +29,18 @@ public class ResumeController {
             @RequestBody ResumeRequest resumeRequest
     ) throws IOException {
 
-        Map<String, Object> stringObjectMap = resumeService.generateResumeResponse(resumeRequest.userDescription());
-        return new ResponseEntity<>(stringObjectMap, HttpStatus.OK);
+        if(resumeRequest==null ||
+        resumeRequest.userDescription()==null ||
+        resumeRequest.userDescription().isBlank()){
+            return ResponseEntity.badRequest().build();
+        }
+
+        Map<String,Object> resumeData=
+                resumeService.generateResumeResponse(
+                        resumeRequest.userDescription()
+                );
+
+        return ResponseEntity.status(HttpStatus.OK).body(resumeData);
 
     }
 

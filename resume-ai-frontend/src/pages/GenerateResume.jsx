@@ -1,18 +1,24 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+
 import {
   FaBrain,
-  FaTrash,
   FaPaperPlane,
+  FaTrash,
   FaPlusCircle,
 } from "react-icons/fa";
+
 import { BiBook } from "react-icons/bi";
-import { useForm, useFieldArray } from "react-hook-form";
+
+import {
+  useForm,
+  useFieldArray,
+} from "react-hook-form";
 
 import { generateResume } from "../api/ResumeService";
 import Resume from "../components/Resume";
 
-const initialData = {
+const defaultValues = {
   personalInformation: {
     fullName: "",
     email: "",
@@ -22,689 +28,1358 @@ const initialData = {
     gitHub: "",
     portfolio: "",
   },
+
   summary: "",
-  skills: [],
-  experience: [],
-  education: [],
-  certifications: [],
-  projects: [],
-  achievements: [],
-  languages: [],
-  interests: [],
+
+  skills: [
+    {
+      title: "",
+      level: "",
+    },
+  ],
+
+  experience: [
+    {
+      jobTitle: "",
+      company: "",
+      location: "",
+      duration: "",
+      responsibility: "",
+    },
+  ],
+
+  education: [
+    {
+      degree: "",
+      university: "",
+      location: "",
+      graduationYear: "",
+    },
+  ],
+
+  certifications: [
+    {
+      title: "",
+      issuingOrganization: "",
+      year: "",
+    },
+  ],
+
+  projects: [
+    {
+      title: "",
+      description: "",
+      technologiesUsed: [],
+      githubLink: "",
+    },
+  ],
+
+  achievements: [
+    {
+      title: "",
+      year: "",
+      extraInformation: "",
+    },
+  ],
+
+  languages: [
+    {
+      id: 1,
+      name: "",
+    },
+  ],
+
+  interests: [
+    {
+      name: "",
+    },
+  ],
 };
 
 const GenerateResume = () => {
-  const [data, setData] = useState(initialData);
 
-  const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
+  const [generatedResume, setGeneratedResume] =
+    useState(null);
 
-  const [showFormUI, setShowFormUI] = useState(false);
-  const [showResumeUI, setShowResumeUI] = useState(false);
-  const [showPromptInput, setShowPromptInput] = useState(true);
+  const [userDescription, setUserDescription] =
+    useState("");
+
+  // =========================================================
+  // REACT HOOK FORM
+  // =========================================================
 
   const {
     register,
-    handleSubmit,
     control,
+    handleSubmit,
     reset,
   } = useForm({
-    defaultValues: initialData,
+    defaultValues,
   });
 
-  /* ================= FIELD ARRAYS ================= */
+  // =========================================================
+  // FIELD ARRAYS
+  // =========================================================
 
-  const skillsFields = useFieldArray({
+  const {
+    fields: skillFields,
+    append: appendSkill,
+    remove: removeSkill,
+  } = useFieldArray({
     control,
     name: "skills",
   });
 
-  const experienceFields = useFieldArray({
+  const {
+    fields: experienceFields,
+    append: appendExperience,
+    remove: removeExperience,
+  } = useFieldArray({
     control,
     name: "experience",
   });
 
-  const educationFields = useFieldArray({
+  const {
+    fields: educationFields,
+    append: appendEducation,
+    remove: removeEducation,
+  } = useFieldArray({
     control,
     name: "education",
   });
 
-  const certificationsFields = useFieldArray({
+  const {
+    fields: certificationFields,
+    append: appendCertification,
+    remove: removeCertification,
+  } = useFieldArray({
     control,
     name: "certifications",
   });
 
-  const projectsFields = useFieldArray({
+  const {
+    fields: projectFields,
+    append: appendProject,
+    remove: removeProject,
+  } = useFieldArray({
     control,
     name: "projects",
   });
 
-  const achievementsFields = useFieldArray({
+  const {
+    fields: achievementFields,
+    append: appendAchievement,
+    remove: removeAchievement,
+  } = useFieldArray({
     control,
     name: "achievements",
   });
 
-  const languagesFields = useFieldArray({
+  const {
+    fields: languageFields,
+    append: appendLanguage,
+    remove: removeLanguage,
+  } = useFieldArray({
     control,
     name: "languages",
   });
 
-  const interestsFields = useFieldArray({
+  const {
+    fields: interestFields,
+    append: appendInterest,
+    remove: removeInterest,
+  } = useFieldArray({
     control,
     name: "interests",
   });
 
-  /* ================= FORM SUBMIT ================= */
+  // =========================================================
+  // NORMALIZE ARRAY
+  // =========================================================
 
-  const onSubmit = (formData) => {
-    console.log("FORM DATA:", formData);
+  const normalizeArray = (value) => {
 
-    const finalData = {
-      ...formData,
+    if (Array.isArray(value)) {
+      return value;
+    }
 
-      // Make sure technologiesUsed becomes an array
-      projects: (formData.projects || []).map((project) => ({
-        ...project,
-        technologiesUsed:
-          typeof project.technologiesUsed === "string"
-            ? project.technologiesUsed
-                .split(",")
-                .map((item) => item.trim())
-                .filter(Boolean)
-            : project.technologiesUsed || [],
-      })),
+    if (typeof value === "string" &&
+        value.trim()) {
 
-      // Ensure IDs exist
-      languages: (formData.languages || []).map((language, index) => ({
-        id: Number(language.id) || index + 1,
-        name: language.name || "",
-      })),
+      return value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
 
-      interests: (formData.interests || []).map((interest, index) => ({
-        id: Number(interest.id) || index + 1,
-        name: interest.name || "",
-      })),
-    };
-
-    console.log("FINAL RESUME DATA:", finalData);
-
-    setData(finalData);
-
-    setShowFormUI(false);
-    setShowPromptInput(false);
-    setShowResumeUI(true);
+    return [];
   };
 
-  /* ================= GENERATE ================= */
+  // =========================================================
+  // FORMAT AI RESPONSE
+  // =========================================================
 
-  const handleGenerate = async () => {
-  if (!description.trim()) {
-    toast.error("Please enter your description first.");
+  const formatResumeData = (resumeData) => {
+
+    const personal =
+      resumeData?.personalInformation || {};
+
+    return {
+
+      personalInformation: {
+        fullName: personal.fullName || "",
+        email: personal.email || "",
+        phoneNumber: personal.phoneNumber || "",
+        location: personal.location || "",
+
+        linkedin:
+          personal.linkedin ||
+          personal.linkedIn ||
+          "",
+
+        gitHub:
+          personal.gitHub ||
+          personal.github ||
+          "",
+
+        portfolio:
+          personal.portfolio || "",
+      },
+
+      summary:
+        typeof resumeData?.summary === "string"
+          ? resumeData.summary
+          : "",
+
+      skills: Array.isArray(resumeData?.skills)
+        ? resumeData.skills.map((skill) => ({
+            title:
+              typeof skill === "string"
+                ? skill
+                : skill?.title || "",
+
+            level:
+              typeof skill === "object"
+                ? skill?.level || ""
+                : "",
+          }))
+        : [],
+
+      experience:
+        Array.isArray(resumeData?.experience)
+          ? resumeData.experience.map((exp) => ({
+              jobTitle:
+                exp?.jobTitle || "",
+
+              company:
+                exp?.company || "",
+
+              location:
+                exp?.location || "",
+
+              duration:
+                exp?.duration || "",
+
+              responsibility:
+                exp?.responsibility || "",
+            }))
+          : [],
+
+      education:
+        Array.isArray(resumeData?.education)
+          ? resumeData.education.map((edu) => ({
+              degree:
+                edu?.degree || "",
+
+              university:
+                edu?.university || "",
+
+              location:
+                edu?.location || "",
+
+              graduationYear:
+                edu?.graduationYear || "",
+            }))
+          : [],
+
+      certifications:
+        Array.isArray(resumeData?.certifications)
+          ? resumeData.certifications.map(
+              (cert) => ({
+                title:
+                  cert?.title || "",
+
+                issuingOrganization:
+                  cert?.issuingOrganization || "",
+
+                year:
+                  cert?.year || "",
+              })
+            )
+          : [],
+
+      projects:
+        Array.isArray(resumeData?.projects)
+          ? resumeData.projects.map(
+              (project) => ({
+                title:
+                  project?.title || "",
+
+                description:
+                  project?.description || "",
+
+                technologiesUsed:
+                  normalizeArray(
+                    project?.technologiesUsed
+                  ),
+
+                githubLink:
+                  project?.githubLink || "",
+              })
+            )
+          : [],
+
+      achievements:
+        Array.isArray(resumeData?.achievements)
+          ? resumeData.achievements.map(
+              (achievement) => ({
+                title:
+                  achievement?.title || "",
+
+                year:
+                  achievement?.year || "",
+
+                extraInformation:
+                  achievement?.extraInformation ||
+                  "",
+              })
+            )
+          : [],
+
+      languages:
+        Array.isArray(resumeData?.languages)
+          ? resumeData.languages.map(
+              (language, index) => ({
+                id:
+                  typeof language?.id === "number"
+                    ? language.id
+                    : index + 1,
+
+                name:
+                  typeof language === "string"
+                    ? language
+                    : language?.name || "",
+              })
+            )
+          : [],
+
+      interests:
+        Array.isArray(resumeData?.interests)
+          ? resumeData.interests.map(
+              (interest) => ({
+                name:
+                  typeof interest === "string"
+                    ? interest
+                    : interest?.name || "",
+              })
+            )
+          : [],
+    };
+  };
+
+  // =========================================================
+  // GENERATE RESUME
+  // =========================================================
+
+  const handleGenerateResume = async () => {
+  if (!userDescription.trim()) {
+    toast.error("Please enter your resume description.");
     return;
   }
 
   try {
     setLoading(true);
 
-    console.log("Sending description to backend...");
-
-    const startTime = performance.now();
-
-    const response = await generateResume(description.trim());
-
-    const endTime = performance.now();
-
     console.log(
-      `Resume generation took ${((endTime - startTime) / 1000).toFixed(2)} seconds`
+      "Sending description:",
+      userDescription
     );
 
-    console.log("FULL API RESPONSE:", response);
+    const response = await generateResume(
+      userDescription.trim()
+    );
 
-    // ---------------------------------------
-    // Get actual resume object from response
-    // ---------------------------------------
-
-    let resumeData = response?.data ?? response;
-
-    // Handles:
-    // { data: { ...resume } }
-    if (
-      resumeData?.data &&
-      typeof resumeData.data === "object" &&
-      !Array.isArray(resumeData.data)
-    ) {
-      resumeData = resumeData.data;
-    }
-
-    console.log("RESUME DATA:", resumeData);
+    console.log(
+      "FULL BACKEND RESPONSE:",
+      response
+    );
 
     if (
-      !resumeData ||
-      typeof resumeData !== "object" ||
-      Array.isArray(resumeData)
+      !response ||
+      typeof response !== "object" ||
+      Array.isArray(response)
     ) {
-      throw new Error("Invalid resume data received from backend.");
+      throw new Error(
+        "Backend returned invalid resume data."
+      );
     }
 
-    // ---------------------------------------
-    // Format resume data
-    // ---------------------------------------
-
-    const formattedData = {
-      personalInformation: {
-        fullName: resumeData.personalInformation?.fullName || "",
-        email: resumeData.personalInformation?.email || "",
-        phoneNumber: resumeData.personalInformation?.phoneNumber || "",
-        location: resumeData.personalInformation?.location || "",
-        linkedin: resumeData.personalInformation?.linkedin || "",
-        gitHub: resumeData.personalInformation?.gitHub || "",
-        portfolio: resumeData.personalInformation?.portfolio || "",
-      },
-
-      summary: resumeData.summary || "",
-
-      skills: Array.isArray(resumeData.skills)
-        ? resumeData.skills.map((skill) => ({
-            title: skill?.title || "",
-            level: skill?.level || "",
-          }))
-        : [],
-
-      experience: Array.isArray(resumeData.experience)
-        ? resumeData.experience.map((experience) => ({
-            jobTitle: experience?.jobTitle || "",
-            company: experience?.company || "",
-            location: experience?.location || "",
-            duration: experience?.duration || "",
-            responsibility: experience?.responsibility || "",
-          }))
-        : [],
-
-      education: Array.isArray(resumeData.education)
-        ? resumeData.education.map((education) => ({
-            degree: education?.degree || "",
-            university: education?.university || "",
-            location: education?.location || "",
-            graduationYear: education?.graduationYear || "",
-          }))
-        : [],
-
-      certifications: Array.isArray(resumeData.certifications)
-        ? resumeData.certifications.map((certification) => ({
-            title: certification?.title || "",
-            issuingOrganization:
-              certification?.issuingOrganization || "",
-            year: certification?.year || "",
-          }))
-        : [],
-
-      projects: Array.isArray(resumeData.projects)
-        ? resumeData.projects.map((project) => ({
-            title: project?.title || "",
-            description: project?.description || "",
-            technologiesUsed: Array.isArray(project?.technologiesUsed)
-              ? project.technologiesUsed
-              : [],
-            githubLink: project?.githubLink || "",
-          }))
-        : [],
-
-      achievements: Array.isArray(resumeData.achievements)
-        ? resumeData.achievements.map((achievement) => ({
-            title: achievement?.title || "",
-            year: achievement?.year || "",
-            extraInformation:
-              achievement?.extraInformation || "",
-          }))
-        : [],
-
-      languages: Array.isArray(resumeData.languages)
-        ? resumeData.languages.map((language, index) => ({
-            id: Number(language?.id) || index + 1,
-            name: language?.name || "",
-          }))
-        : [],
-
-      interests: Array.isArray(resumeData.interests)
-        ? resumeData.interests.map((interest, index) => ({
-            id: Number(interest?.id) || index + 1,
-            name: interest?.name || "",
-          }))
-        : [],
-    };
+    const formattedData =
+      formatResumeData(response);
 
     console.log(
       "FORMATTED RESUME DATA:",
-      JSON.stringify(formattedData, null, 2)
+      formattedData
     );
 
-    // ---------------------------------------
-    // Update React state
-    // ---------------------------------------
-
-    setData(formattedData);
-
-    // VERY IMPORTANT:
-    // Update react-hook-form with generated data
     reset(formattedData);
 
-    // ---------------------------------------
-    // Change UI
-    // ---------------------------------------
+    setGeneratedResume(formattedData);
 
-    toast.success("Resume Generated Successfully!");
-
-    setShowPromptInput(false);
-    setShowFormUI(true);
-    setShowResumeUI(false);
-
+    toast.success(
+      "Resume generated successfully!"
+    );
   } catch (error) {
-    console.error("RESUME GENERATION ERROR:", error);
+    console.error(
+      "Resume generation error:",
+      error
+    );
 
-    let errorMessage = "Error Generating Resume!";
+    console.error(
+      "HTTP status:",
+      error?.response?.status
+    );
 
-    if (error?.response?.data?.message) {
-      errorMessage = error.response.data.message;
-    } else if (error?.response?.data?.error) {
-      errorMessage = error.response.data.error;
-    } else if (typeof error?.response?.data === "string") {
-      errorMessage = error.response.data;
-    } else if (error?.message) {
-      errorMessage = error.message;
-    }
+    console.error(
+      "Backend response:",
+      error?.response?.data
+    );
 
-    toast.error(errorMessage);
+    const backendMessage =
+      error?.response?.data?.message ||
+      error?.response?.data?.error;
 
+    toast.error(
+      backendMessage ||
+        "Failed to generate resume. Check backend console."
+    );
   } finally {
     setLoading(false);
-    setDescription("");
   }
 };
 
     
-      
-
-  /* ================= CLEAR ================= */
+  // =========================================================
+  // CLEAR
+  // =========================================================
 
   const handleClear = () => {
-    setDescription("");
+
+    reset(defaultValues);
+
+    setGeneratedResume(null);
+
+    setUserDescription("");
+
+    toast.success("Form cleared.");
   };
 
-  /* ================= NORMAL INPUT ================= */
+  // =========================================================
+  // MANUAL SUBMIT
+  // =========================================================
 
-  const renderInput = (name, label, type = "text") => {
-    return (
-      <div className="form-control w-full mb-4">
-        <label className="label">
-          <span className="label-text text-base-content">
-            {label}
-          </span>
-        </label>
+  const onSubmit = (data) => {
 
-        <input
-          type={type}
-          {...register(name)}
-          className="input input-bordered rounded-xl w-full bg-base-100 text-base-content"
-        />
-      </div>
+    console.log(
+      "MANUAL FORM DATA:",
+      data
+    );
+
+    setGeneratedResume(data);
+
+    toast.success(
+      "Resume preview updated."
     );
   };
 
-  /* ================= FIELD ARRAY ================= */
+  // =========================================================
+  // UI
+  // =========================================================
 
-  const renderFieldArray = (
-    fields,
-    label,
-    name,
-    keys,
-    appendObject = null
-  ) => {
-    return (
-      <div className="form-control w-full mb-6">
-        <h3 className="text-xl font-semibold mb-3">
-          {label}
-        </h3>
+  return (
+    <div className="min-h-screen p-6">
 
-        {fields.fields.map((field, index) => (
-          <div
-            key={field.id}
-            className="p-4 rounded-lg mb-4 bg-base-100 border border-base-300"
-          >
-            {keys.map((key) => (
-              <div key={key}>
-                {renderInput(
-                  `${name}.${index}.${key}`,
-                  key
-                    .replace(/([A-Z])/g, " $1")
-                    .replace(/^./, (str) => str.toUpperCase())
-                )}
-              </div>
-            ))}
+      <div className="max-w-6xl mx-auto">
 
-            <button
-              type="button"
-              onClick={() => fields.remove(index)}
-              className="btn btn-error btn-sm mt-2"
-            >
-              <FaTrash className="w-4 h-4" />
-              Remove {label}
-            </button>
+        {/* PAGE TITLE */}
+
+        <div className="text-center mb-10">
+
+          <div className="flex justify-center items-center gap-3">
+
+            <FaBrain
+              className="text-primary text-4xl"
+            />
+
+            <h1 className="text-4xl font-bold">
+              AI Resume Builder
+            </h1>
+
           </div>
-        ))}
 
-        <button
-          type="button"
-          onClick={() => {
-            if (appendObject) {
-              fields.append(appendObject);
-            } else {
-              const newObject = keys.reduce((acc, key) => {
-                acc[key] = "";
-                return acc;
-              }, {});
+          <p className="mt-3 text-gray-500">
+            Generate a professional IT resume
+            using AI.
+          </p>
 
-              fields.append(newObject);
-            }
-          }}
-          className="btn btn-secondary btn-sm flex items-center"
-        >
-          <FaPlusCircle className="w-5 h-5 mr-1" />
-          Add {label}
-        </button>
-      </div>
-    );
-  };
+        </div>
 
-  /* ================= FORM ================= */
+        {/* AI DESCRIPTION */}
 
-  function showFormFunction() {
-    return (
-      <div className="w-full p-10">
-        <h1 className="text-4xl font-bold mb-6 flex items-center justify-center gap-2">
-          <BiBook className="text-accent" />
-          Resume Form
-        </h1>
+        <div className="card bg-base-100 shadow-xl mb-8">
+
+          <div className="card-body">
+
+            <h2 className="card-title text-2xl">
+
+              <FaBrain className="text-primary" />
+
+              Describe Yourself
+
+            </h2>
+
+            <p className="text-gray-500">
+              Enter your skills, education,
+              projects, experience and career
+              goals. AI will generate your resume.
+            </p>
+
+            <textarea
+              value={userDescription}
+              onChange={(e) =>
+                setUserDescription(e.target.value)
+              }
+              placeholder="Example: I am a Computer Science student skilled in Java, Spring Boot, React.js, JavaScript, MySQL and Tailwind CSS..."
+              className="textarea textarea-bordered w-full h-48 mt-4"
+            />
+
+            <div className="flex flex-wrap gap-3 mt-4">
+
+              <button
+                type="button"
+                onClick={handleGenerateResume}
+                disabled={loading}
+                className="btn btn-primary"
+              >
+
+                {loading ? (
+                  <>
+                    <span className="loading loading-spinner loading-sm"></span>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <FaPaperPlane />
+                    Generate Resume
+                  </>
+                )}
+
+              </button>
+
+              <button
+                type="button"
+                onClick={handleClear}
+                disabled={loading}
+                className="btn btn-outline btn-error"
+              >
+                <FaTrash />
+                Clear
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* FORM */}
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="p-6 space-y-6 bg-base-200 rounded-lg text-base-content"
+          className="space-y-8"
         >
+
           {/* PERSONAL INFORMATION */}
 
-          <h3 className="text-xl font-semibold">
-            Personal Information
-          </h3>
+          <div className="card bg-base-100 shadow-xl">
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {renderInput(
-              "personalInformation.fullName",
-              "Full Name"
-            )}
+            <div className="card-body">
 
-            {renderInput(
-              "personalInformation.email",
-              "Email",
-              "email"
-            )}
+              <h2 className="card-title text-2xl">
+                Personal Information
+              </h2>
 
-            {renderInput(
-              "personalInformation.phoneNumber",
-              "Phone Number",
-              "tel"
-            )}
+              <div className="grid md:grid-cols-2 gap-4">
 
-            {renderInput(
-              "personalInformation.location",
-              "Location"
-            )}
+                <input
+                  {...register(
+                    "personalInformation.fullName"
+                  )}
+                  placeholder="Full Name"
+                  className="input input-bordered w-full"
+                />
 
-            {renderInput(
-              "personalInformation.linkedin",
-              "LinkedIn",
-              "url"
-            )}
+                <input
+                  {...register(
+                    "personalInformation.email"
+                  )}
+                  placeholder="Email"
+                  type="email"
+                  className="input input-bordered w-full"
+                />
 
-            {renderInput(
-              "personalInformation.gitHub",
-              "GitHub",
-              "url"
-            )}
+                <input
+                  {...register(
+                    "personalInformation.phoneNumber"
+                  )}
+                  placeholder="Phone Number"
+                  className="input input-bordered w-full"
+                />
 
-            {renderInput(
-              "personalInformation.portfolio",
-              "Portfolio",
-              "url"
-            )}
+                <input
+                  {...register(
+                    "personalInformation.location"
+                  )}
+                  placeholder="Location"
+                  className="input input-bordered w-full"
+                />
+
+                <input
+                  {...register(
+                    "personalInformation.linkedin"
+                  )}
+                  placeholder="LinkedIn URL"
+                  className="input input-bordered w-full"
+                />
+
+                <input
+                  {...register(
+                    "personalInformation.gitHub"
+                  )}
+                  placeholder="GitHub URL"
+                  className="input input-bordered w-full"
+                />
+
+                <input
+                  {...register(
+                    "personalInformation.portfolio"
+                  )}
+                  placeholder="Portfolio URL"
+                  className="input input-bordered w-full"
+                />
+
+              </div>
+
+            </div>
+
           </div>
 
           {/* SUMMARY */}
 
-          <h3 className="text-xl font-semibold">
-            Professional Summary
-          </h3>
+          <div className="card bg-base-100 shadow-xl">
 
-          <textarea
-            {...register("summary")}
-            className="textarea textarea-bordered w-full bg-base-100 text-base-content"
-            rows={4}
-          />
+            <div className="card-body">
+
+              <h2 className="card-title text-2xl">
+                Professional Summary
+              </h2>
+
+              <textarea
+                {...register("summary")}
+                placeholder="Professional Summary"
+                className="textarea textarea-bordered w-full h-32"
+              />
+
+            </div>
+
+          </div>
 
           {/* SKILLS */}
 
-          {renderFieldArray(
-            skillsFields,
-            "Skills",
-            "skills",
-            ["title", "level"]
-          )}
+          <div className="card bg-base-100 shadow-xl">
+
+            <div className="card-body">
+
+              <div className="flex justify-between items-center">
+
+                <h2 className="card-title text-2xl">
+                  Skills
+                </h2>
+
+                <button
+                  type="button"
+                  className="btn btn-sm btn-primary"
+                  onClick={() =>
+                    appendSkill({
+                      title: "",
+                      level: "",
+                    })
+                  }
+                >
+                  <FaPlusCircle />
+                  Add Skill
+                </button>
+
+              </div>
+
+              {skillFields.map(
+                (field, index) => (
+
+                  <div
+                    key={field.id}
+                    className="grid md:grid-cols-3 gap-3 mt-4"
+                  >
+
+                    <input
+                      {...register(
+                        `skills.${index}.title`
+                      )}
+                      placeholder="Skill"
+                      className="input input-bordered"
+                    />
+
+                    <input
+                      {...register(
+                        `skills.${index}.level`
+                      )}
+                      placeholder="Level"
+                      className="input input-bordered"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeSkill(index)
+                      }
+                      className="btn btn-error"
+                    >
+                      <FaTrash />
+                      Remove
+                    </button>
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </div>
 
           {/* EXPERIENCE */}
 
-          {renderFieldArray(
-            experienceFields,
-            "Experience",
-            "experience",
-            [
-              "jobTitle",
-              "company",
-              "location",
-              "duration",
-              "responsibility",
-            ]
-          )}
+          <div className="card bg-base-100 shadow-xl">
+
+            <div className="card-body">
+
+              <div className="flex justify-between items-center">
+
+                <h2 className="card-title text-2xl">
+                  Experience
+                </h2>
+
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() =>
+                    appendExperience({
+                      jobTitle: "",
+                      company: "",
+                      location: "",
+                      duration: "",
+                      responsibility: "",
+                    })
+                  }
+                >
+                  <FaPlusCircle />
+                  Add Experience
+                </button>
+
+              </div>
+
+              {experienceFields.map(
+                (field, index) => (
+
+                  <div
+                    key={field.id}
+                    className="border border-base-300 rounded-lg p-4 mt-4 space-y-3"
+                  >
+
+                    <input
+                      {...register(
+                        `experience.${index}.jobTitle`
+                      )}
+                      placeholder="Job Title"
+                      className="input input-bordered w-full"
+                    />
+
+                    <div className="grid md:grid-cols-2 gap-3">
+
+                      <input
+                        {...register(
+                          `experience.${index}.company`
+                        )}
+                        placeholder="Company"
+                        className="input input-bordered"
+                      />
+
+                      <input
+                        {...register(
+                          `experience.${index}.location`
+                        )}
+                        placeholder="Location"
+                        className="input input-bordered"
+                      />
+
+                      <input
+                        {...register(
+                          `experience.${index}.duration`
+                        )}
+                        placeholder="Duration"
+                        className="input input-bordered"
+                      />
+
+                    </div>
+
+                    <textarea
+                      {...register(
+                        `experience.${index}.responsibility`
+                      )}
+                      placeholder="Responsibilities"
+                      className="textarea textarea-bordered w-full"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeExperience(index)
+                      }
+                      className="btn btn-error btn-sm"
+                    >
+                      <FaTrash />
+                      Remove Experience
+                    </button>
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </div>
 
           {/* EDUCATION */}
 
-          {renderFieldArray(
-            educationFields,
-            "Education",
-            "education",
-            [
-              "degree",
-              "university",
-              "location",
-              "graduationYear",
-            ]
-          )}
+          <div className="card bg-base-100 shadow-xl">
+
+            <div className="card-body">
+
+              <div className="flex justify-between items-center">
+
+                <h2 className="card-title text-2xl">
+                  <BiBook />
+                  Education
+                </h2>
+
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() =>
+                    appendEducation({
+                      degree: "",
+                      university: "",
+                      location: "",
+                      graduationYear: "",
+                    })
+                  }
+                >
+                  <FaPlusCircle />
+                  Add Education
+                </button>
+
+              </div>
+
+              {educationFields.map(
+                (field, index) => (
+
+                  <div
+                    key={field.id}
+                    className="border border-base-300 rounded-lg p-4 mt-4 space-y-3"
+                  >
+
+                    <input
+                      {...register(
+                        `education.${index}.degree`
+                      )}
+                      placeholder="Degree"
+                      className="input input-bordered w-full"
+                    />
+
+                    <div className="grid md:grid-cols-3 gap-3">
+
+                      <input
+                        {...register(
+                          `education.${index}.university`
+                        )}
+                        placeholder="University"
+                        className="input input-bordered"
+                      />
+
+                      <input
+                        {...register(
+                          `education.${index}.location`
+                        )}
+                        placeholder="Location"
+                        className="input input-bordered"
+                      />
+
+                      <input
+                        {...register(
+                          `education.${index}.graduationYear`
+                        )}
+                        placeholder="Graduation Year"
+                        className="input input-bordered"
+                      />
+
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeEducation(index)
+                      }
+                      className="btn btn-error btn-sm"
+                    >
+                      <FaTrash />
+                      Remove Education
+                    </button>
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </div>
 
           {/* CERTIFICATIONS */}
 
-          {renderFieldArray(
-            certificationsFields,
-            "Certifications",
-            "certifications",
-            [
-              "title",
-              "issuingOrganization",
-              "year",
-            ]
-          )}
+          <div className="card bg-base-100 shadow-xl">
+
+            <div className="card-body">
+
+              <div className="flex justify-between items-center">
+
+                <h2 className="card-title text-2xl">
+                  Certifications
+                </h2>
+
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() =>
+                    appendCertification({
+                      title: "",
+                      issuingOrganization: "",
+                      year: "",
+                    })
+                  }
+                >
+                  <FaPlusCircle />
+                  Add Certification
+                </button>
+
+              </div>
+
+              {certificationFields.map(
+                (field, index) => (
+
+                  <div
+                    key={field.id}
+                    className="grid md:grid-cols-4 gap-3 mt-4"
+                  >
+
+                    <input
+                      {...register(
+                        `certifications.${index}.title`
+                      )}
+                      placeholder="Certification"
+                      className="input input-bordered"
+                    />
+
+                    <input
+                      {...register(
+                        `certifications.${index}.issuingOrganization`
+                      )}
+                      placeholder="Issuing Organization"
+                      className="input input-bordered"
+                    />
+
+                    <input
+                      {...register(
+                        `certifications.${index}.year`
+                      )}
+                      placeholder="Year"
+                      className="input input-bordered"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeCertification(index)
+                      }
+                      className="btn btn-error"
+                    >
+                      <FaTrash />
+                    </button>
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </div>
 
           {/* PROJECTS */}
 
-          {renderFieldArray(
-            projectsFields,
-            "Projects",
-            "projects",
-            [
-              "title",
-              "description",
-              "technologiesUsed",
-              "githubLink",
-            ]
-          )}
+          <div className="card bg-base-100 shadow-xl">
+
+            <div className="card-body">
+
+              <div className="flex justify-between items-center">
+
+                <h2 className="card-title text-2xl">
+                  Projects
+                </h2>
+
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() =>
+                    appendProject({
+                      title: "",
+                      description: "",
+                      technologiesUsed: [],
+                      githubLink: "",
+                    })
+                  }
+                >
+                  <FaPlusCircle />
+                  Add Project
+                </button>
+
+              </div>
+
+              {projectFields.map(
+                (field, index) => (
+
+                  <div
+                    key={field.id}
+                    className="border border-base-300 rounded-lg p-4 mt-4 space-y-3"
+                  >
+
+                    <input
+                      {...register(
+                        `projects.${index}.title`
+                      )}
+                      placeholder="Project Title"
+                      className="input input-bordered w-full"
+                    />
+
+                    <textarea
+                      {...register(
+                        `projects.${index}.description`
+                      )}
+                      placeholder="Project Description"
+                      className="textarea textarea-bordered w-full"
+                    />
+
+                    <input
+                      {...register(
+                        `projects.${index}.technologiesUsed`
+                      )}
+                      placeholder="Technologies (Java, Spring Boot, React...)"
+                      className="input input-bordered w-full"
+                    />
+
+                    <input
+                      {...register(
+                        `projects.${index}.githubLink`
+                      )}
+                      placeholder="GitHub Link"
+                      className="input input-bordered w-full"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeProject(index)
+                      }
+                      className="btn btn-error btn-sm"
+                    >
+                      <FaTrash />
+                      Remove Project
+                    </button>
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </div>
 
           {/* ACHIEVEMENTS */}
 
-          {renderFieldArray(
-            achievementsFields,
-            "Achievements",
-            "achievements",
-            [
-              "title",
-              "year",
-              "extraInformation",
-            ]
-          )}
+          <div className="card bg-base-100 shadow-xl">
+
+            <div className="card-body">
+
+              <div className="flex justify-between items-center">
+
+                <h2 className="card-title text-2xl">
+                  Achievements
+                </h2>
+
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() =>
+                    appendAchievement({
+                      title: "",
+                      year: "",
+                      extraInformation: "",
+                    })
+                  }
+                >
+                  <FaPlusCircle />
+                  Add Achievement
+                </button>
+
+              </div>
+
+              {achievementFields.map(
+                (field, index) => (
+
+                  <div
+                    key={field.id}
+                    className="border border-base-300 rounded-lg p-4 mt-4 space-y-3"
+                  >
+
+                    <input
+                      {...register(
+                        `achievements.${index}.title`
+                      )}
+                      placeholder="Achievement Title"
+                      className="input input-bordered w-full"
+                    />
+
+                    <input
+                      {...register(
+                        `achievements.${index}.year`
+                      )}
+                      placeholder="Year"
+                      className="input input-bordered w-full"
+                    />
+
+                    <textarea
+                      {...register(
+                        `achievements.${index}.extraInformation`
+                      )}
+                      placeholder="Additional Information"
+                      className="textarea textarea-bordered w-full"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeAchievement(index)
+                      }
+                      className="btn btn-error btn-sm"
+                    >
+                      <FaTrash />
+                      Remove Achievement
+                    </button>
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </div>
 
           {/* LANGUAGES */}
 
-          {renderFieldArray(
-            languagesFields,
-            "Languages",
-            "languages",
-            ["id", "name"]
-          )}
+          <div className="card bg-base-100 shadow-xl">
+
+            <div className="card-body">
+
+              <div className="flex justify-between items-center">
+
+                <h2 className="card-title text-2xl">
+                  Languages
+                </h2>
+
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() =>
+                    appendLanguage({
+                      id: languageFields.length + 1,
+                      name: "",
+                    })
+                  }
+                >
+                  <FaPlusCircle />
+                  Add Language
+                </button>
+
+              </div>
+
+              {languageFields.map(
+                (field, index) => (
+
+                  <div
+                    key={field.id}
+                    className="flex gap-3 mt-4"
+                  >
+
+                    <input
+                      {...register(
+                        `languages.${index}.name`
+                      )}
+                      placeholder="Language"
+                      className="input input-bordered flex-1"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeLanguage(index)
+                      }
+                      className="btn btn-error"
+                    >
+                      <FaTrash />
+                    </button>
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </div>
 
           {/* INTERESTS */}
 
-          {renderFieldArray(
-            interestsFields,
-            "Interests",
-            "interests",
-            ["id", "name"]
-          )}
+          <div className="card bg-base-100 shadow-xl">
 
-          <button
-            type="submit"
-            className="btn btn-primary w-full"
-          >
-            Submit & View Resume
-          </button>
+            <div className="card-body">
+
+              <div className="flex justify-between items-center">
+
+                <h2 className="card-title text-2xl">
+                  Interests
+                </h2>
+
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() =>
+                    appendInterest({
+                      name: "",
+                    })
+                  }
+                >
+                  <FaPlusCircle />
+                  Add Interest
+                </button>
+
+              </div>
+
+              {interestFields.map(
+                (field, index) => (
+
+                  <div
+                    key={field.id}
+                    className="flex gap-3 mt-4"
+                  >
+
+                    <input
+                      {...register(
+                        `interests.${index}.name`
+                      )}
+                      placeholder="Interest"
+                      className="input input-bordered flex-1"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeInterest(index)
+                      }
+                      className="btn btn-error"
+                    >
+                      <FaTrash />
+                    </button>
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </div>
+
+          {/* SAVE */}
+
+          <div className="flex justify-center pb-10">
+
+            <button
+              type="submit"
+              className="btn btn-success px-10"
+            >
+              Save / Update Resume
+            </button>
+
+          </div>
+
         </form>
+
+        {/* PREVIEW */}
+
+        {generatedResume && (
+
+          <div className="mt-12">
+
+            <div className="divider text-xl font-bold">
+              Resume Preview
+            </div>
+
+            <Resume
+              data={generatedResume}
+            />
+
+          </div>
+
+        )}
+
       </div>
-    );
-  }
 
-  /* ================= AI INPUT ================= */
-
-  function ShowInputField() {
-    return (
-      <div className="bg-base-200 shadow-lg rounded-lg p-10 max-w-2xl w-full text-center">
-        <h1 className="text-4xl font-bold mb-6 flex items-center justify-center gap-2">
-          <FaBrain className="text-accent" />
-          AI Resume Description Input
-        </h1>
-
-        <p className="mb-4 text-lg text-gray-600">
-          Enter a detailed description about yourself to
-          generate your professional resume.
-        </p>
-
-        <textarea
-          disabled={loading}
-          className="textarea textarea-bordered w-full h-48 mb-6 resize-none"
-          placeholder="Example: I am Shubham, a Java Full Stak developer..."
-          value={description}
-          onChange={(e) =>
-            setDescription(e.target.value)
-          }
-        />
-
-        <div className="flex justify-center gap-4">
-          <button
-            type="button"
-            disabled={loading}
-            onClick={handleGenerate}
-            className="btn btn-primary flex items-center gap-2"
-          >
-            {loading && (
-              <span className="loading loading-spinner" />
-            )}
-
-            <FaPaperPlane />
-
-            {loading
-              ? "Generating..."
-              : "Generate Resume"}
-          </button>
-
-          <button
-            type="button"
-            disabled={loading}
-            onClick={handleClear}
-            className="btn btn-secondary flex items-center gap-2"
-          >
-            <FaTrash />
-            Clear
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  /* ================= RESUME ================= */
-
-  function showResume() {
-    return (
-      <div className="w-full">
-        <Resume data={data} />
-
-        <div className="flex mt-5 justify-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setShowPromptInput(true);
-              setShowFormUI(false);
-              setShowResumeUI(false);
-            }}
-            className="btn btn-accent"
-          >
-            Generate Another
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setShowPromptInput(false);
-              setShowFormUI(true);
-              setShowResumeUI(false);
-
-              reset(data);
-            }}
-            className="btn btn-success"
-          >
-            Edit
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  /* ================= UI ================= */
-
-  return (
-    <div className="mt-5 p-10 flex flex-col gap-3 items-center justify-center font-sans">
-      {showFormUI && showFormFunction()}
-
-      {showPromptInput && ShowInputField()}
-
-      {showResumeUI && showResume()}
     </div>
   );
 };
 
 export default GenerateResume;
-
-
-

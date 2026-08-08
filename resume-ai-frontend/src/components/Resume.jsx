@@ -1,353 +1,884 @@
 import React, { useRef } from "react";
-import { FaGithub, FaLinkedin, FaPhone, FaEnvelope } from "react-icons/fa";
-import html2canvas from "html2canvas";
+import "daisyui/dist/full.css";
+
+import {
+  FaGithub,
+  FaLinkedin,
+  FaPhone,
+  FaEnvelope,
+  FaGlobe,
+} from "react-icons/fa";
+
+import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
 
 const Resume = ({ data }) => {
   const resumeRef = useRef(null);
 
+  // =========================================================
+  // SAFETY CHECK
+  // =========================================================
+
   if (!data) {
+    
     return (
-      <div className="text-center mt-10">
-        <h2>No Resume Data Found</h2>
+      <div className="text-center mt-10 p-10">
+        <h2 className="text-2xl font-semibold">
+          No Resume Data Found
+        </h2>
       </div>
     );
   }
 
+  // =========================================================
+  // SAFE DATA
+  // =========================================================
+
   const personalInformation = data.personalInformation || {};
 
-  const skills = data.skills || [];
-  const experience = data.experience || [];
-  const education = data.education || [];
-  const certifications = data.certifications || [];
-  const projects = data.projects || [];
-  const achievements = data.achievements || [];
-  const languages = data.languages || [];
-  const interests = data.interests || [];
+  const skills = Array.isArray(data.skills)
+    ? data.skills
+    : [];
+
+  const experience = Array.isArray(data.experience)
+    ? data.experience
+    : [];
+
+  const education = Array.isArray(data.education)
+    ? data.education
+    : [];
+
+  const certifications = Array.isArray(data.certifications)
+    ? data.certifications
+    : [];
+
+  const projects = Array.isArray(data.projects)
+    ? data.projects
+    : [];
+
+  const achievements = Array.isArray(data.achievements)
+    ? data.achievements
+    : [];
+
+  const languages = Array.isArray(data.languages)
+    ? data.languages
+    : [];
+
+  const interests = Array.isArray(data.interests)
+    ? data.interests
+    : [];
+
+  // =========================================================
+  // PDF DOWNLOAD
+  // =========================================================
 
   const handleDownloadPdf = async () => {
-  if (!resumeRef.current) return;
+    if (!resumeRef.current) {
+      console.error("Resume element not found.");
+      return;
+    }
 
-  const previousTheme =
-    document.documentElement.classList.contains("dark");
+    try {
+      const element = resumeRef.current;
 
-  document.documentElement.classList.remove("dark");
+      await new Promise((resolve) =>
+        setTimeout(resolve, 300)
+      );
 
-  const resume = resumeRef.current;
+      const dataUrl = await toPng(element, {
+        quality: 1,
+        pixelRatio: 2,
+        backgroundColor: "#ffffff",
+        cacheBust: true,
+      });
 
-  resume.style.background = "#ffffff";
-  resume.style.color = "#000000";
+      const img = new Image();
 
-  try {
-    const canvas = await html2canvas(resume, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      logging: false,
-      scrollY: -window.scrollY,
-      windowWidth: resume.scrollWidth,
-      windowHeight: resume.scrollHeight,
-    });
+      img.src = dataUrl;
 
-    const imgData = canvas.toDataURL("image/jpeg", 0.75);
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
 
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-      compress: true,
-    });
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true,
+      });
 
-    const pdfWidth = 210;
-    const pdfHeight = 297;
+      const pdfWidth = 210;
+      const pdfHeight = 297;
 
-    const imgWidth = pdfWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const imageWidth = pdfWidth;
 
-    let heightLeft = imgHeight;
-    let position = 0;
+      const imageHeight =
+        (img.height * imageWidth) / img.width;
 
-    pdf.addImage(
-      imgData,
-      "JPEG",
-      0,
-      position,
-      imgWidth,
-      imgHeight,
-      undefined,
-      "FAST"
-    );
-
-    heightLeft -= pdfHeight;
-
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-
-      pdf.addPage();
+      let heightLeft = imageHeight;
+      let position = 0;
 
       pdf.addImage(
-        imgData,
-        "JPEG",
+        dataUrl,
+        "PNG",
         0,
         position,
-        imgWidth,
-        imgHeight,
-        undefined,
-        "FAST"
+        imageWidth,
+        imageHeight
       );
 
       heightLeft -= pdfHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imageHeight;
+
+        pdf.addPage();
+
+        pdf.addImage(
+          dataUrl,
+          "PNG",
+          0,
+          position,
+          imageWidth,
+          imageHeight
+        );
+
+        heightLeft -= pdfHeight;
+      }
+
+      const fullName =
+        personalInformation.fullName?.trim();
+
+      const fileName = fullName
+        ? `${fullName.replace(/\s+/g, "_")}_Resume.pdf`
+        : "Resume.pdf";
+
+      pdf.save(fileName);
+    } catch (error) {
+      console.error(
+        "Error generating PDF:",
+        error
+      );
     }
+  };
 
-    pdf.save(`${personalInformation.fullName || "Resume"}.pdf`);
-  } finally {
-    resume.style.background = "";
-    resume.style.color = "";
+  // =========================================================
+  // REUSABLE STYLES
+  // =========================================================
 
-    if (previousTheme) {
-      document.documentElement.classList.add("dark");
-    }
-  }
-};
+  const sectionTitle =
+    "text-[13px] font-bold uppercase tracking-wide border-b border-gray-300 pb-1";
 
+  const subHeading =
+    "font-semibold text-[11px]";
+
+  const bodyText =
+    "text-[10px] leading-[1.45]";
 
   return (
     <>
+      {/* =====================================================
+          RESUME
+      ====================================================== */}
+
       <div
         ref={resumeRef}
-        id="resume"
-        className="w-[210mm] min-h-[297mm] mx-auto bg-white text-black p-8 border border-gray-300"
+        className="
+          w-[210mm]
+          min-h-[297mm]
+          mx-auto
+          bg-white
+          text-black
+          px-[16mm]
+          py-[12mm]
+          shadow-xl
+          border
+          border-gray-300
+        "
       >
-        {/* ================= HEADER ================= */}
-        <div className="text-center border-b-2 border-gray-400 pb-4">
-          <h1 className="text-4xl font-bold uppercase tracking-wide">
-            {personalInformation.fullName}
+
+        {/* =================================================
+            HEADER
+        ================================================== */}
+
+        <header className="text-center border-b border-gray-400 pb-3">
+
+          {/* NAME */}
+
+          <h1 className="
+            text-[25px]
+            font-bold
+            uppercase
+            tracking-wide
+          ">
+            {personalInformation.fullName || ""}
           </h1>
 
-          <div className="mt-2 text-sm flex flex-wrap justify-center gap-4 text-gray-700">
-            {personalInformation.location && (
-              <span>{personalInformation.location}</span>
+          {/* LOCATION */}
+
+          {personalInformation.location && (
+            <p className="
+              mt-0.5
+              text-[9px]
+              text-gray-600
+            ">
+              {personalInformation.location}
+            </p>
+          )}
+
+          {/* EMAIL + PHONE */}
+
+          <div className="
+            flex
+            flex-wrap
+            justify-center
+            items-center
+            gap-x-4
+            gap-y-1
+            mt-1.5
+            text-[9px]
+            text-gray-700
+          ">
+
+            {personalInformation.email && (
+              <a
+                href={`mailto:${personalInformation.email}`}
+                className="flex items-center hover:underline"
+              >
+                <FaEnvelope className="mr-1" />
+
+                {personalInformation.email}
+              </a>
             )}
 
             {personalInformation.phoneNumber && (
-              <span>
-                <FaPhone className="inline mr-1" />
+              <span className="flex items-center">
+                <FaPhone className="mr-1" />
+
                 {personalInformation.phoneNumber}
               </span>
             )}
 
-            {personalInformation.email && (
-              <span>
-                <FaEnvelope className="inline mr-1" />
-                {personalInformation.email}
-              </span>
-            )}
           </div>
 
-          <div className="mt-2 flex justify-center flex-wrap gap-5 text-sm">
-            {personalInformation.linkedin && (
-              <a
-                href={personalInformation.linkedin}
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-700 hover:underline"
-              >
-                <FaLinkedin className="inline mr-1" />
-                LinkedIn
-              </a>
-            )}
+          {/* GITHUB + LINKEDIN + PORTFOLIO */}
+
+          <div className="
+            flex
+            flex-wrap
+            justify-center
+            items-center
+            gap-x-4
+            gap-y-1
+            mt-1
+            text-[9px]
+          ">
 
             {personalInformation.gitHub && (
               <a
                 href={personalInformation.gitHub}
                 target="_blank"
-                rel="noreferrer"
-                className="text-blue-700 hover:underline"
+                rel="noopener noreferrer"
+                className="
+                  flex
+                  items-center
+                  text-gray-700
+                  hover:underline
+                "
               >
-                <FaGithub className="inline mr-1" />
+                <FaGithub className="mr-1" />
                 GitHub
               </a>
             )}
-          </div>
-        </div>
 
-        {/* ================= SUMMARY ================= */}
+            {personalInformation.linkedin && (
+              <a
+                href={personalInformation.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="
+                  flex
+                  items-center
+                  text-gray-700
+                  hover:underline
+                "
+              >
+                <FaLinkedin className="mr-1" />
+                LinkedIn
+              </a>
+            )}
+
+            {personalInformation.portfolio && (
+              <a
+                href={personalInformation.portfolio}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="
+                  flex
+                  items-center
+                  text-gray-700
+                  hover:underline
+                "
+              >
+                <FaGlobe className="mr-1" />
+                Portfolio
+              </a>
+            )}
+
+          </div>
+
+        </header>
+
+
+        {/* =================================================
+            PROFESSIONAL SUMMARY
+        ================================================== */}
+
         {data.summary && (
-          <section className="mt-6">
-            <h2 className="text-lg font-bold uppercase border-b border-gray-400 pb-1">
+          <section className="mt-3">
+
+            <h2 className={sectionTitle}>
               Professional Summary
             </h2>
-            <p className="mt-3 text-[15px] leading-7 text-justify">
+
+            <p className={`
+              mt-1.5
+              ${bodyText}
+              text-justify
+            `}>
               {data.summary}
             </p>
+
           </section>
         )}
 
-        {/* ================= SKILLS ================= */}
-        {skills.length > 0 && (
-          <section className="mt-6">
-            <h2 className="text-lg font-bold uppercase border-b border-gray-400 pb-1">
-              Technical Skills
-            </h2>
-            <div className="mt-3 grid grid-cols-2 gap-y-2">
-              {skills.map((skill, index) => (
-                <div key={index} className="flex items-center">
-                  <span className="mr-2 text-black font-bold">•</span>
-                  <span className="text-[15px]">
-                    {skill.title}
-                    {skill.level && ` (${skill.level})`}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
 
-        {/* ================= EDUCATION ================= */}
+        {/* =================================================
+            EDUCATION
+        ================================================== */}
+
         {education.length > 0 && (
-          <section className="mt-6">
-            <h2 className="text-lg font-bold uppercase border-b border-gray-400 pb-1">
+          <section className="mt-3">
+
+            <h2 className={sectionTitle}>
               Education
             </h2>
-            <div className="mt-4 space-y-5">
+
+            <div className="mt-1.5 space-y-2">
+
               {education.map((edu, index) => (
                 <div key={index}>
-                  <div className="flex justify-between">
-                    <h3 className="font-semibold text-[16px]">
-                      {edu.degree}
-                    </h3>
-                    <span className="text-gray-700">
-                      {edu.graduationYear}
-                    </span>
+
+                  <div className="
+                    flex
+                    justify-between
+                    items-start
+                    gap-3
+                  ">
+
+                    <div>
+
+                      {edu?.degree && (
+                        <h3 className={subHeading}>
+                          {edu.degree}
+                        </h3>
+                      )}
+
+                      {edu?.university && (
+                        <p className="
+                          text-[10px]
+                          font-medium
+                          text-gray-800
+                        ">
+                          {edu.university}
+                        </p>
+                      )}
+
+                      {edu?.location && (
+                        <p className="
+                          text-[9px]
+                          text-gray-600
+                        ">
+                          {edu.location}
+                        </p>
+                      )}
+
+                    </div>
+
+                    {edu?.graduationYear && (
+                      <span className="
+                        text-[10px]
+                        font-medium
+                        text-gray-700
+                        whitespace-nowrap
+                      ">
+                        {edu.graduationYear}
+                      </span>
+                    )}
+
                   </div>
-                  <p className="text-[15px]">{edu.university}</p>
-                  {edu.location && (
-                    <p className="text-gray-600 text-sm">{edu.location}</p>
-                  )}
+
                 </div>
               ))}
+
             </div>
+
           </section>
         )}
 
-        {/* ================= EXPERIENCE ================= */}
+
+        {/* =================================================
+            TECHNICAL SKILLS
+        ================================================== */}
+
+        {skills.length > 0 && (
+          <section className="mt-3">
+
+            <h2 className={sectionTitle}>
+              Technical Skills
+            </h2>
+
+            <div className="
+              mt-1.5
+              grid
+              grid-cols-2
+              gap-x-8
+              gap-y-0.5
+            ">
+
+              {skills.map((skill, index) => {
+
+                const title =
+                  typeof skill === "string"
+                    ? skill
+                    : skill?.title || "";
+
+                const level =
+                  typeof skill === "object"
+                    ? skill?.level || ""
+                    : "";
+
+                return (
+                  <div
+                    key={index}
+                    className="
+                      flex
+                      items-start
+                      text-[10px]
+                      leading-4
+                    "
+                  >
+
+                    <span className="
+                      mr-1.5
+                      font-bold
+                    ">
+                      •
+                    </span>
+
+                    <span>
+
+                      <span className="
+                        font-medium
+                      ">
+                        {title}
+                      </span>
+
+                      {level && (
+                        <span className="
+                          text-gray-600
+                        ">
+                          {" "}
+                          ({level})
+                        </span>
+                      )}
+
+                    </span>
+
+                  </div>
+                );
+              })}
+
+            </div>
+
+          </section>
+        )}
+
+
+        {/* =================================================
+            EXPERIENCE
+        ================================================== */}
+
         {experience.length > 0 && (
-          <section className="mt-6">
-            <h2 className="text-lg font-bold uppercase border-b border-gray-400 pb-1">
+          <section className="mt-3">
+
+            <h2 className={sectionTitle}>
               Experience
             </h2>
-            <div className="mt-4 space-y-5">
+
+            <div className="mt-1.5 space-y-2.5">
+
               {experience.map((exp, index) => (
                 <div key={index}>
-                  <div className="flex justify-between">
-                    <h3 className="font-semibold text-[16px]">
-                      {exp.jobTitle}
-                    </h3>
-                    <span className="text-gray-700">{exp.duration}</span>
+
+                  <div className="
+                    flex
+                    justify-between
+                    items-start
+                    gap-3
+                  ">
+
+                    <div>
+
+                      {exp?.jobTitle && (
+                        <h3 className={subHeading}>
+                          {exp.jobTitle}
+                        </h3>
+                      )}
+
+                      {(exp?.company ||
+                        exp?.location) && (
+                        <p className="
+                          text-[10px]
+                          font-medium
+                          text-gray-700
+                        ">
+                          {exp?.company || ""}
+
+                          {exp?.company &&
+                            exp?.location
+                            ? " | "
+                            : ""}
+
+                          {exp?.location || ""}
+                        </p>
+                      )}
+
+                    </div>
+
+                    {exp?.duration && (
+                      <span className="
+                        text-[9px]
+                        text-gray-600
+                        whitespace-nowrap
+                      ">
+                        {exp.duration}
+                      </span>
+                    )}
+
                   </div>
-                  <p className="italic text-gray-700">
-                    {exp.company}
-                    {exp.location && ` | ${exp.location}`}
-                  </p>
-                  <p className="mt-2 text-[15px] leading-6">
-                    {exp.responsibility}
-                  </p>
+
+                  {exp?.responsibility && (
+                    <p className="
+                      mt-0.5
+                      text-[10px]
+                      leading-[1.45]
+                    ">
+                      {exp.responsibility}
+                    </p>
+                  )}
+
                 </div>
               ))}
+
             </div>
+
           </section>
         )}
 
-        {/* ================= PROJECTS ================= */}
+
+        {/* =================================================
+            PROJECTS
+        ================================================== */}
+
         {projects.length > 0 && (
-          <section className="mt-6">
-            <h2 className="text-lg font-bold uppercase border-b border-gray-400 pb-1">
+          <section className="mt-3">
+
+            <h2 className={sectionTitle}>
               Projects
             </h2>
-            <div className="mt-4 space-y-5">
+
+            <div className="mt-1.5 space-y-2.5">
+
               {projects.map((project, index) => (
                 <div key={index}>
-                  <h3 className="font-semibold text-[16px]">
-                    {project.title}
-                  </h3>
-                  <p className="mt-2 text-[15px] leading-6">
-                    {project.description}
-                  </p>
-                  {project.technologiesUsed && (
-                    <p className="mt-2">
-                      <strong>Technologies:</strong>{" "}
-                      {Array.isArray(project.technologiesUsed)
-                        ? project.technologiesUsed.join(", ")
-                        : project.technologiesUsed}
+
+                  {project?.title && (
+                    <h3 className={subHeading}>
+                      {project.title}
+                    </h3>
+                  )}
+
+                  {project?.description && (
+                    <p className="
+                      mt-0.5
+                      text-[10px]
+                      leading-[1.45]
+                    ">
+                      {project.description}
                     </p>
                   )}
-                  {project.githubLink && (
+
+                  {Array.isArray(
+                    project?.technologiesUsed
+                  ) &&
+                    project.technologiesUsed.length > 0 && (
+                      <p className="
+                        mt-0.5
+                        text-[9px]
+                        text-gray-700
+                      ">
+
+                        <span className="font-semibold">
+                          Technologies:
+                        </span>{" "}
+
+                        {project.technologiesUsed.join(", ")}
+
+                      </p>
+                    )}
+
+                  {project?.githubLink && (
                     <a
                       href={project.githubLink}
                       target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-700 hover:underline"
+                      rel="noopener noreferrer"
+                      className="
+                        text-gray-700
+                        hover:underline
+                        text-[9px]
+                        inline-flex
+                        items-center
+                        mt-0.5
+                      "
                     >
+                      <FaGithub className="mr-1" />
                       GitHub Repository
                     </a>
                   )}
+
                 </div>
               ))}
+
             </div>
+
           </section>
         )}
 
-        {/* ================= CERTIFICATIONS ================= */}
+
+        {/* =================================================
+            CERTIFICATIONS
+        ================================================== */}
+
         {certifications.length > 0 && (
-          <section className="mt-6">
-            <h2 className="text-lg font-bold uppercase border-b border-gray-400 pb-1">
+          <section className="mt-3">
+
+            <h2 className={sectionTitle}>
               Certifications
             </h2>
-            <ul className="mt-4 space-y-2">
+
+            <div className="
+              mt-1.5
+              space-y-1
+            ">
+
               {certifications.map((cert, index) => (
-                <li key={index}>
-                  <strong>{cert.title}</strong>
-                  {cert.issuingOrganization && ` - ${cert.issuingOrganization}`}
-                  {cert.year && ` (${cert.year})`}
-                </li>
+                <div
+                  key={index}
+                  className="text-[10px] leading-4"
+                >
+
+                  {cert?.title && (
+                    <span className="font-semibold">
+                      {cert.title}
+                    </span>
+                  )}
+
+                  {cert?.issuingOrganization && (
+                    <>
+                      {" - "}
+                      <span className="text-gray-700">
+                        {cert.issuingOrganization}
+                      </span>
+                    </>
+                  )}
+
+                  {cert?.year && (
+                    <span className="text-gray-600">
+                      {" "}
+                      ({cert.year})
+                    </span>
+                  )}
+
+                </div>
               ))}
-            </ul>
+
+            </div>
+
           </section>
         )}
 
-        {/* ================= LANGUAGES ================= */}
+
+        {/* =================================================
+            ACHIEVEMENTS
+        ================================================== */}
+
+        {achievements.length > 0 && (
+          <section className="mt-3">
+
+            <h2 className={sectionTitle}>
+              Achievements
+            </h2>
+
+            <div className="
+              mt-1.5
+              space-y-1.5
+            ">
+
+              {achievements.map(
+                (achievement, index) => (
+                  <div key={index}>
+
+                    <div className="
+                      flex
+                      justify-between
+                      items-start
+                      gap-3
+                    ">
+
+                      <h3 className="
+                        font-semibold
+                        text-[10px]
+                      ">
+                        {achievement?.title || ""}
+                      </h3>
+
+                      {achievement?.year && (
+                        <span className="
+                          text-[9px]
+                          text-gray-600
+                          whitespace-nowrap
+                        ">
+                          {achievement.year}
+                        </span>
+                      )}
+
+                    </div>
+
+                    {achievement?.extraInformation && (
+                      <p className="
+                        mt-0.5
+                        text-[9px]
+                        leading-4
+                      ">
+                        {achievement.extraInformation}
+                      </p>
+                    )}
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </section>
+        )}
+
+
+        {/* =================================================
+            LANGUAGES
+        ================================================== */}
+
         {languages.length > 0 && (
-          <section className="mt-6">
-            <h2 className="text-lg font-bold uppercase border-b border-gray-400 pb-1">
+          <section className="mt-3">
+
+            <h2 className={sectionTitle}>
               Languages
             </h2>
-            <p className="mt-3">
-              {languages.map((lang) => lang.name).join(", ")}
-            </p>
+
+            <div className="
+              mt-1.5
+              flex
+              flex-wrap
+              gap-x-5
+              gap-y-1
+              text-[10px]
+            ">
+
+              {languages.map(
+                (language, index) => (
+                  <span key={index}>
+                    {language?.name || ""}
+                  </span>
+                )
+              )}
+
+            </div>
+
           </section>
         )}
 
-        {/* ================= INTERESTS ================= */}
+
+        {/* =================================================
+            INTERESTS
+        ================================================== */}
+
         {interests.length > 0 && (
-          <section className="mt-6">
-            <h2 className="text-lg font-bold uppercase border-b border-gray-400 pb-1">
+          <section className="mt-3">
+
+            <h2 className={sectionTitle}>
               Interests
             </h2>
-            <p className="mt-3">
-              {interests.map((interest) => interest.name).join(", ")}
-            </p>
+
+            <div className="
+              mt-1.5
+              flex
+              flex-wrap
+              gap-x-5
+              gap-y-1
+              text-[10px]
+            ">
+
+              {interests.map(
+                (interest, index) => (
+                  <span key={index}>
+                    {interest?.name || ""}
+                  </span>
+                )
+              )}
+
+            </div>
+
           </section>
         )}
+
       </div>
 
-      {/* Download Button */}
-      <div className="text-center mt-6">
+
+      {/* =====================================================
+          DOWNLOAD BUTTON
+      ====================================================== */}
+
+      <div className="
+        flex
+        justify-center
+        mt-4
+        mb-8
+      ">
+
         <button
+          type="button"
           onClick={handleDownloadPdf}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg transition-all shadow-sm hover:shadow-md"
+          className="
+            btn
+            btn-primary
+            px-8
+          "
         >
           Download PDF
         </button>
+
       </div>
     </>
   );
