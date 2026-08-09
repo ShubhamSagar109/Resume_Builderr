@@ -30,8 +30,8 @@ public class ResumeController {
     ) throws IOException {
 
         if(resumeRequest==null ||
-        resumeRequest.userDescription()==null ||
-        resumeRequest.userDescription().isBlank()){
+                resumeRequest.userDescription()==null ||
+                resumeRequest.userDescription().isBlank()){
             return ResponseEntity.badRequest().build();
         }
 
