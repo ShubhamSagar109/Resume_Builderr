@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-
+import Navbar from "../components/Navbar";
 import {
   FaBrain,
   FaPaperPlane,
@@ -508,27 +508,39 @@ const GenerateResume = () => {
   // =========================================================
 
   return (
-    <div className="min-h-screen p-6">
+    
+    <div className="relative isolate min-h-screen overflow-hidden bg-[#111214] text-[#211A36] px-4 py-8 sm:px-6 lg:px-8">
+     
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <Navbar/>
+        <div className="absolute left-[12%] top-[-10%] h-[560px] w-[240px] rotate-[10deg] rounded-full bg-[#6D3F82]/55 blur-[95px]"></div>
+        <div className="absolute left-[34%] top-[-5%] h-[620px] w-[210px] rounded-full bg-[#A83E91]/50 blur-[105px]"></div>
+        <div className="absolute left-[55%] top-[5%] h-[650px] w-[230px] -rotate-[5deg] rounded-full bg-[#D05B91]/45 blur-[110px]"></div>
+        <div className="absolute left-[22%] bottom-[-18%] h-[430px] w-[280px] rotate-[28deg] rounded-full bg-[#FF8A5B]/55 blur-[75px]"></div>
+        <div className="absolute right-[-8%] top-[18%] h-[420px] w-[260px] rounded-full bg-[#522D63]/45 blur-[100px]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,0.05),transparent_42%)]"></div>
+      </div>
 
-      <div className="max-w-6xl mx-auto">
+      <div className="relative z-10 max-w-7xl mx-auto">
+        
 
         {/* PAGE TITLE */}
 
-        <div className="text-center mb-10">
+        <div className="text-center mb-12">
 
-          <div className="flex justify-center items-center gap-3">
+          <div className="flex justify-center items-center gap-3 mb-3">
 
             <FaBrain
-              className="text-primary text-4xl"
+              className="text-[#F4D6A4] text-4xl drop-shadow-[0_0_18px_rgba(216,91,155,0.55)]"
             />
 
-            <h1 className="text-4xl font-bold">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.35)]">
               AI Resume Builder
             </h1>
 
           </div>
 
-          <p className="mt-3 text-gray-500">
+          <p className="mt-3 text-[#F3EAF4]/85 text-base sm:text-lg max-w-2xl mx-auto leading-7">
             Generate a professional IT resume
             using AI.
           </p>
@@ -537,19 +549,19 @@ const GenerateResume = () => {
 
         {/* AI DESCRIPTION */}
 
-        <div className="card bg-base-100 shadow-xl mb-8">
+        <div className="bg-white border border-white/80 rounded-[26px] shadow-[0_24px_70px_rgba(0,0,0,0.30)] mb-8 overflow-hidden">
 
-          <div className="card-body">
+          <div className="p-6 sm:p-8 lg:p-9 border-t-4 border-[#D85B9B]">
 
-            <h2 className="card-title text-2xl">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#211A36] flex items-center gap-2">
 
-              <FaBrain className="text-primary" />
+              <FaBrain className="text-[#D85B9B]" />
 
               Describe Yourself
 
             </h2>
 
-            <p className="text-gray-500">
+            <p className="text-[#6F6682] leading-7">
               Enter your skills, education,
               projects, experience and career
               goals. AI will generate your resume.
@@ -561,7 +573,7 @@ const GenerateResume = () => {
                 setUserDescription(e.target.value)
               }
               placeholder="Example: I am a Computer Science student skilled in Java, Spring Boot, React.js, JavaScript, MySQL and Tailwind CSS..."
-              className="textarea textarea-bordered w-full h-48 mt-4"
+              className="textarea w-full h-52 mt-5 bg-white border border-[#D8D3DD] rounded-2xl text-[#211A36] placeholder:text-[#A59AAA] leading-7 p-5 focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
             />
 
             <div className="flex flex-wrap gap-3 mt-4">
@@ -570,7 +582,7 @@ const GenerateResume = () => {
                 type="button"
                 onClick={handleGenerateResume}
                 disabled={loading}
-                className="btn btn-primary"
+                className="btn h-12 px-6 rounded-xl bg-[#211214] hover:bg-[#2B1721] text-[#F4D6A4] border-0 shadow-[0_8px_20px_rgba(33,26,54,0.18)]"
               >
 
                 {loading ? (
@@ -591,7 +603,7 @@ const GenerateResume = () => {
                 type="button"
                 onClick={handleClear}
                 disabled={loading}
-                className="btn btn-outline btn-error"
+                className="btn h-12 px-6 rounded-xl bg-white border border-[#E9B5D0] text-[#C34C89] hover:bg-[#FFF1F8] hover:border-[#D98AAF]"
               >
                 <FaTrash />
                 Clear
@@ -612,11 +624,12 @@ const GenerateResume = () => {
 
           {/* PERSONAL INFORMATION */}
 
-          <div className="card bg-base-100 shadow-xl">
+          <div className="bg-white border border-white/80 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.24)] overflow-hidden">
 
-            <div className="card-body">
+            <div className="p-6 sm:p-8 lg:p-9">
 
-              <h2 className="card-title text-2xl">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#211A36] flex items-center gap-2">
+                <span className="w-2 h-7 rounded-full bg-[#211A36] shadow-sm inline-block"></span>
                 Personal Information
               </h2>
 
@@ -627,7 +640,7 @@ const GenerateResume = () => {
                     "personalInformation.fullName"
                   )}
                   placeholder="Full Name"
-                  className="input input-bordered w-full"
+                  className="input w-full h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                 />
 
                 <input
@@ -636,7 +649,7 @@ const GenerateResume = () => {
                   )}
                   placeholder="Email"
                   type="email"
-                  className="input input-bordered w-full"
+                  className="input w-full h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                 />
 
                 <input
@@ -644,7 +657,7 @@ const GenerateResume = () => {
                     "personalInformation.phoneNumber"
                   )}
                   placeholder="Phone Number"
-                  className="input input-bordered w-full"
+                  className="input w-full h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                 />
 
                 <input
@@ -652,7 +665,7 @@ const GenerateResume = () => {
                     "personalInformation.location"
                   )}
                   placeholder="Location"
-                  className="input input-bordered w-full"
+                  className="input w-full h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                 />
 
                 <input
@@ -660,7 +673,7 @@ const GenerateResume = () => {
                     "personalInformation.linkedin"
                   )}
                   placeholder="LinkedIn URL"
-                  className="input input-bordered w-full"
+                  className="input w-full h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                 />
 
                 <input
@@ -668,7 +681,7 @@ const GenerateResume = () => {
                     "personalInformation.gitHub"
                   )}
                   placeholder="GitHub URL"
-                  className="input input-bordered w-full"
+                  className="input w-full h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                 />
 
                 <input
@@ -676,7 +689,7 @@ const GenerateResume = () => {
                     "personalInformation.portfolio"
                   )}
                   placeholder="Portfolio URL"
-                  className="input input-bordered w-full"
+                  className="input w-full h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                 />
 
               </div>
@@ -687,18 +700,19 @@ const GenerateResume = () => {
 
           {/* SUMMARY */}
 
-          <div className="card bg-base-100 shadow-xl">
+          <div className="bg-white border border-white/80 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.24)] overflow-hidden">
 
-            <div className="card-body">
+            <div className="p-6 sm:p-8 lg:p-9">
 
-              <h2 className="card-title text-2xl">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#211A36] flex items-center gap-2">
+                <span className="w-2 h-7 rounded-full bg-[#211A36] shadow-sm inline-block"></span>
                 Professional Summary
               </h2>
 
               <textarea
                 {...register("summary")}
                 placeholder="Professional Summary"
-                className="textarea textarea-bordered w-full h-32"
+                className="textarea w-full min-h-32 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
               />
 
             </div>
@@ -707,19 +721,19 @@ const GenerateResume = () => {
 
           {/* SKILLS */}
 
-          <div className="card bg-base-100 shadow-xl">
+          <div className="bg-white border border-white/80 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.24)] overflow-hidden">
 
-            <div className="card-body">
+            <div className="p-6 sm:p-8 lg:p-9">
 
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
-                <h2 className="card-title text-2xl">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#211A36] flex items-center gap-2">
                   Skills
                 </h2>
 
                 <button
                   type="button"
-                  className="btn btn-sm btn-primary"
+                  className="btn btn-sm h-10 px-4 rounded-xl bg-[#D85B9B] hover:bg-[#BE477F] text-white border-0 shadow-[0_8px_20px_rgba(216,91,155,0.25)]"
                   onClick={() =>
                     appendSkill({
                       title: "",
@@ -746,7 +760,7 @@ const GenerateResume = () => {
                         `skills.${index}.title`
                       )}
                       placeholder="Skill"
-                      className="input input-bordered"
+                      className="input h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <input
@@ -754,7 +768,7 @@ const GenerateResume = () => {
                         `skills.${index}.level`
                       )}
                       placeholder="Level"
-                      className="input input-bordered"
+                      className="input h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <button
@@ -762,7 +776,7 @@ const GenerateResume = () => {
                       onClick={() =>
                         removeSkill(index)
                       }
-                      className="btn btn-error"
+                      className="btn h-11 rounded-xl bg-white hover:bg-[#FFF1F8] text-[#C34C89] border border-[#E9B5D0] shadow-none"
                     >
                       <FaTrash />
                       Remove
@@ -778,19 +792,19 @@ const GenerateResume = () => {
 
           {/* EXPERIENCE */}
 
-          <div className="card bg-base-100 shadow-xl">
+          <div className="bg-white border border-white/80 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.24)] overflow-hidden">
 
-            <div className="card-body">
+            <div className="p-6 sm:p-8 lg:p-9">
 
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
-                <h2 className="card-title text-2xl">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#211A36] flex items-center gap-2">
                   Experience
                 </h2>
 
                 <button
                   type="button"
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-sm h-10 px-4 rounded-xl bg-[#211214] hover:bg-[#2B1721] text-[#F4D6A4] border-0 shadow-sm"
                   onClick={() =>
                     appendExperience({
                       jobTitle: "",
@@ -812,7 +826,7 @@ const GenerateResume = () => {
 
                   <div
                     key={field.id}
-                    className="border border-base-300 rounded-lg p-4 mt-4 space-y-3"
+                    className="border border-[#D8D3DD] bg-[#F8FFFC] rounded-2xl p-5 mt-5 space-y-3 shadow-sm"
                   >
 
                     <input
@@ -820,7 +834,7 @@ const GenerateResume = () => {
                         `experience.${index}.jobTitle`
                       )}
                       placeholder="Job Title"
-                      className="input input-bordered w-full"
+                      className="input w-full h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <div className="grid md:grid-cols-2 gap-3">
@@ -830,7 +844,7 @@ const GenerateResume = () => {
                           `experience.${index}.company`
                         )}
                         placeholder="Company"
-                        className="input input-bordered"
+                        className="input h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                       />
 
                       <input
@@ -838,7 +852,7 @@ const GenerateResume = () => {
                           `experience.${index}.location`
                         )}
                         placeholder="Location"
-                        className="input input-bordered"
+                        className="input h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                       />
 
                       <input
@@ -846,7 +860,7 @@ const GenerateResume = () => {
                           `experience.${index}.duration`
                         )}
                         placeholder="Duration"
-                        className="input input-bordered"
+                        className="input h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                       />
 
                     </div>
@@ -856,7 +870,7 @@ const GenerateResume = () => {
                         `experience.${index}.responsibility`
                       )}
                       placeholder="Responsibilities"
-                      className="textarea textarea-bordered w-full"
+                      className="textarea w-full bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <button
@@ -864,7 +878,7 @@ const GenerateResume = () => {
                       onClick={() =>
                         removeExperience(index)
                       }
-                      className="btn btn-error btn-sm"
+                      className="btn btn-sm h-10 rounded-xl bg-white hover:bg-[#FFF1F8] text-[#C34C89] border border-[#E9B5D0] shadow-none"
                     >
                       <FaTrash />
                       Remove Experience
@@ -880,20 +894,20 @@ const GenerateResume = () => {
 
           {/* EDUCATION */}
 
-          <div className="card bg-base-100 shadow-xl">
+          <div className="bg-white border border-white/80 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.24)] overflow-hidden">
 
-            <div className="card-body">
+            <div className="p-6 sm:p-8 lg:p-9">
 
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
-                <h2 className="card-title text-2xl">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#211A36] flex items-center gap-2">
                   <BiBook />
                   Education
                 </h2>
 
                 <button
                   type="button"
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-sm h-10 px-4 rounded-xl bg-[#211214] hover:bg-[#2B1721] text-[#F4D6A4] border-0 shadow-sm"
                   onClick={() =>
                     appendEducation({
                       degree: "",
@@ -914,7 +928,7 @@ const GenerateResume = () => {
 
                   <div
                     key={field.id}
-                    className="border border-base-300 rounded-lg p-4 mt-4 space-y-3"
+                    className="border border-[#D8D3DD] bg-[#F8FFFC] rounded-2xl p-5 mt-5 space-y-3 shadow-sm"
                   >
 
                     <input
@@ -922,7 +936,7 @@ const GenerateResume = () => {
                         `education.${index}.degree`
                       )}
                       placeholder="Degree"
-                      className="input input-bordered w-full"
+                      className="input w-full h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <div className="grid md:grid-cols-3 gap-3">
@@ -932,7 +946,7 @@ const GenerateResume = () => {
                           `education.${index}.university`
                         )}
                         placeholder="University"
-                        className="input input-bordered"
+                        className="input h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                       />
 
                       <input
@@ -940,7 +954,7 @@ const GenerateResume = () => {
                           `education.${index}.location`
                         )}
                         placeholder="Location"
-                        className="input input-bordered"
+                        className="input h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                       />
 
                       <input
@@ -948,7 +962,7 @@ const GenerateResume = () => {
                           `education.${index}.graduationYear`
                         )}
                         placeholder="Graduation Year"
-                        className="input input-bordered"
+                        className="input h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                       />
 
                     </div>
@@ -958,7 +972,7 @@ const GenerateResume = () => {
                       onClick={() =>
                         removeEducation(index)
                       }
-                      className="btn btn-error btn-sm"
+                      className="btn btn-sm h-10 rounded-xl bg-white hover:bg-[#FFF1F8] text-[#C34C89] border border-[#E9B5D0] shadow-none"
                     >
                       <FaTrash />
                       Remove Education
@@ -974,19 +988,19 @@ const GenerateResume = () => {
 
           {/* CERTIFICATIONS */}
 
-          <div className="card bg-base-100 shadow-xl">
+          <div className="bg-white border border-white/80 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.24)] overflow-hidden">
 
-            <div className="card-body">
+            <div className="p-6 sm:p-8 lg:p-9">
 
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
-                <h2 className="card-title text-2xl">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#211A36] flex items-center gap-2">
                   Certifications
                 </h2>
 
                 <button
                   type="button"
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-sm h-10 px-4 rounded-xl bg-[#211214] hover:bg-[#2B1721] text-[#F4D6A4] border-0 shadow-sm"
                   onClick={() =>
                     appendCertification({
                       title: "",
@@ -1014,7 +1028,7 @@ const GenerateResume = () => {
                         `certifications.${index}.title`
                       )}
                       placeholder="Certification"
-                      className="input input-bordered"
+                      className="input h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <input
@@ -1022,7 +1036,7 @@ const GenerateResume = () => {
                         `certifications.${index}.issuingOrganization`
                       )}
                       placeholder="Issuing Organization"
-                      className="input input-bordered"
+                      className="input h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <input
@@ -1030,7 +1044,7 @@ const GenerateResume = () => {
                         `certifications.${index}.year`
                       )}
                       placeholder="Year"
-                      className="input input-bordered"
+                      className="input h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <button
@@ -1038,7 +1052,7 @@ const GenerateResume = () => {
                       onClick={() =>
                         removeCertification(index)
                       }
-                      className="btn btn-error"
+                      className="btn h-11 rounded-xl bg-white hover:bg-[#FFF1F8] text-[#C34C89] border border-[#E9B5D0] shadow-none"
                     >
                       <FaTrash />
                     </button>
@@ -1053,19 +1067,19 @@ const GenerateResume = () => {
 
           {/* PROJECTS */}
 
-          <div className="card bg-base-100 shadow-xl">
+          <div className="bg-white border border-white/80 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.24)] overflow-hidden">
 
-            <div className="card-body">
+            <div className="p-6 sm:p-8 lg:p-9">
 
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
-                <h2 className="card-title text-2xl">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#211A36] flex items-center gap-2">
                   Projects
                 </h2>
 
                 <button
                   type="button"
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-sm h-10 px-4 rounded-xl bg-[#211214] hover:bg-[#2B1721] text-[#F4D6A4] border-0 shadow-sm"
                   onClick={() =>
                     appendProject({
                       title: "",
@@ -1086,7 +1100,7 @@ const GenerateResume = () => {
 
                   <div
                     key={field.id}
-                    className="border border-base-300 rounded-lg p-4 mt-4 space-y-3"
+                    className="border border-[#D8D3DD] bg-[#F8FFFC] rounded-2xl p-5 mt-5 space-y-3 shadow-sm"
                   >
 
                     <input
@@ -1094,7 +1108,7 @@ const GenerateResume = () => {
                         `projects.${index}.title`
                       )}
                       placeholder="Project Title"
-                      className="input input-bordered w-full"
+                      className="input w-full h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <textarea
@@ -1102,7 +1116,7 @@ const GenerateResume = () => {
                         `projects.${index}.description`
                       )}
                       placeholder="Project Description"
-                      className="textarea textarea-bordered w-full"
+                      className="textarea w-full bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <input
@@ -1110,7 +1124,7 @@ const GenerateResume = () => {
                         `projects.${index}.technologiesUsed`
                       )}
                       placeholder="Technologies (Java, Spring Boot, React...)"
-                      className="input input-bordered w-full"
+                      className="input w-full h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <input
@@ -1118,7 +1132,7 @@ const GenerateResume = () => {
                         `projects.${index}.githubLink`
                       )}
                       placeholder="GitHub Link"
-                      className="input input-bordered w-full"
+                      className="input w-full h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <button
@@ -1126,7 +1140,7 @@ const GenerateResume = () => {
                       onClick={() =>
                         removeProject(index)
                       }
-                      className="btn btn-error btn-sm"
+                      className="btn btn-sm h-10 rounded-xl bg-white hover:bg-[#FFF1F8] text-[#C34C89] border border-[#E9B5D0] shadow-none"
                     >
                       <FaTrash />
                       Remove Project
@@ -1142,19 +1156,19 @@ const GenerateResume = () => {
 
           {/* ACHIEVEMENTS */}
 
-          <div className="card bg-base-100 shadow-xl">
+          <div className="bg-white border border-white/80 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.24)] overflow-hidden">
 
-            <div className="card-body">
+            <div className="p-6 sm:p-8 lg:p-9">
 
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
-                <h2 className="card-title text-2xl">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#211A36] flex items-center gap-2">
                   Achievements
                 </h2>
 
                 <button
                   type="button"
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-sm h-10 px-4 rounded-xl bg-[#211214] hover:bg-[#2B1721] text-[#F4D6A4] border-0 shadow-sm"
                   onClick={() =>
                     appendAchievement({
                       title: "",
@@ -1174,7 +1188,7 @@ const GenerateResume = () => {
 
                   <div
                     key={field.id}
-                    className="border border-base-300 rounded-lg p-4 mt-4 space-y-3"
+                    className="border border-[#D8D3DD] bg-[#F8FFFC] rounded-2xl p-5 mt-5 space-y-3 shadow-sm"
                   >
 
                     <input
@@ -1182,7 +1196,7 @@ const GenerateResume = () => {
                         `achievements.${index}.title`
                       )}
                       placeholder="Achievement Title"
-                      className="input input-bordered w-full"
+                      className="input w-full h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <input
@@ -1190,7 +1204,7 @@ const GenerateResume = () => {
                         `achievements.${index}.year`
                       )}
                       placeholder="Year"
-                      className="input input-bordered w-full"
+                      className="input w-full h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <textarea
@@ -1198,7 +1212,7 @@ const GenerateResume = () => {
                         `achievements.${index}.extraInformation`
                       )}
                       placeholder="Additional Information"
-                      className="textarea textarea-bordered w-full"
+                      className="textarea w-full bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <button
@@ -1206,7 +1220,7 @@ const GenerateResume = () => {
                       onClick={() =>
                         removeAchievement(index)
                       }
-                      className="btn btn-error btn-sm"
+                      className="btn btn-sm h-10 rounded-xl bg-white hover:bg-[#FFF1F8] text-[#C34C89] border border-[#E9B5D0] shadow-none"
                     >
                       <FaTrash />
                       Remove Achievement
@@ -1222,19 +1236,19 @@ const GenerateResume = () => {
 
           {/* LANGUAGES */}
 
-          <div className="card bg-base-100 shadow-xl">
+          <div className="bg-white border border-white/80 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.24)] overflow-hidden">
 
-            <div className="card-body">
+            <div className="p-6 sm:p-8 lg:p-9">
 
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
-                <h2 className="card-title text-2xl">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#211A36] flex items-center gap-2">
                   Languages
                 </h2>
 
                 <button
                   type="button"
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-sm h-10 px-4 rounded-xl bg-[#211214] hover:bg-[#2B1721] text-[#F4D6A4] border-0 shadow-sm"
                   onClick={() =>
                     appendLanguage({
                       id: languageFields.length + 1,
@@ -1261,7 +1275,7 @@ const GenerateResume = () => {
                         `languages.${index}.name`
                       )}
                       placeholder="Language"
-                      className="input input-bordered flex-1"
+                      className="input h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] flex-1 focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <button
@@ -1269,7 +1283,7 @@ const GenerateResume = () => {
                       onClick={() =>
                         removeLanguage(index)
                       }
-                      className="btn btn-error"
+                      className="btn h-11 rounded-xl bg-white hover:bg-[#FFF1F8] text-[#C34C89] border border-[#E9B5D0] shadow-none"
                     >
                       <FaTrash />
                     </button>
@@ -1284,19 +1298,19 @@ const GenerateResume = () => {
 
           {/* INTERESTS */}
 
-          <div className="card bg-base-100 shadow-xl">
+          <div className="bg-white border border-white/80 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.24)] overflow-hidden">
 
-            <div className="card-body">
+            <div className="p-6 sm:p-8 lg:p-9">
 
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
-                <h2 className="card-title text-2xl">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#211A36] flex items-center gap-2">
                   Interests
                 </h2>
 
                 <button
                   type="button"
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-sm h-10 px-4 rounded-xl bg-[#211214] hover:bg-[#2B1721] text-[#F4D6A4] border-0 shadow-sm"
                   onClick={() =>
                     appendInterest({
                       name: "",
@@ -1322,7 +1336,7 @@ const GenerateResume = () => {
                         `interests.${index}.name`
                       )}
                       placeholder="Interest"
-                      className="input input-bordered flex-1"
+                      className="input h-12 bg-white border border-[#D8D3DD] rounded-xl text-[#211A36] placeholder:text-[#A59AAA] flex-1 focus:bg-white focus:border-[#D85B9B] focus:outline-none focus:ring-4 focus:ring-[#D85B9B]/10 transition-all"
                     />
 
                     <button
@@ -1330,7 +1344,7 @@ const GenerateResume = () => {
                       onClick={() =>
                         removeInterest(index)
                       }
-                      className="btn btn-error"
+                      className="btn h-11 rounded-xl bg-white hover:bg-[#FFF1F8] text-[#C34C89] border border-[#E9B5D0] shadow-none"
                     >
                       <FaTrash />
                     </button>
@@ -1345,11 +1359,11 @@ const GenerateResume = () => {
 
           {/* SAVE */}
 
-          <div className="flex justify-center pb-10">
+          <div className="flex justify-center pb-12 pt-4">
 
             <button
               type="submit"
-              className="btn btn-success px-10"
+              className="btn h-12 px-8 rounded-xl bg-[#211214] hover:bg-[#2B1721] text-[#F4D6A4] border-0 shadow-[0_8px_20px_rgba(33,26,54,0.18)]"
             >
               Save / Update Resume
             </button>
@@ -1362,9 +1376,9 @@ const GenerateResume = () => {
 
         {generatedResume && (
 
-          <div className="mt-12">
+          <div className="mt-14">
 
-            <div className="divider text-xl font-bold">
+            <div className="divider text-xl font-extrabold text-[#211A36] my-10">
               Resume Preview
             </div>
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Navbar from "../components/Navbar";
 import {
   FaArrowRight,
   FaBrain,
@@ -12,82 +13,58 @@ import {
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-base-100 text-base-content">
-      {/* ================= NAVBAR ================= */}
-      <div className="navbar bg-base-100/90 backdrop-blur-md sticky top-0 z-50 border-b border-base-300">
-        <div className="container mx-auto px-4">
-          {/* Logo */}
-          <div className="flex-1">
-            <Link
-              to="/"
-              className="flex items-center gap-3 text-xl font-bold"
-            >
-              <div className="w-10 h-10 rounded-xl bg-primary text-primary-content flex items-center justify-center shadow-lg">
-                <FaBrain className="text-lg" />
-              </div>
-
-              <span>
-                Resume<span className="text-primary">AI</span>
-              </span>
-            </Link>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-3">
-            <a href="#features" className="btn btn-ghost">
-              Features
-            </a>
-
-            <a href="#how-it-works" className="btn btn-ghost">
-              How It Works
-            </a>
-
-            <Link
-              to="/generate-resume"
-              className="btn btn-primary rounded-xl px-6"
-            >
-              Create Resume
-            </Link>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen overflow-x-hidden bg-[#111214] text-white">
+       <Navbar/>
 
       {/* ================= HERO ================= */}
-      <section className="relative overflow-hidden bg-base-200">
+      <section className="relative max-w-full overflow-hidden bg-[#111214]">
+
         {/* Background Decorations */}
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+        <div className="pointer-events-none absolute -left-40 -top-40 h-[30rem] w-[30rem] rounded-full bg-[#6D3F82]/40 blur-[120px]" />
 
-        <div className="absolute top-40 -right-32 w-96 h-96 bg-secondary/10 rounded-full blur-3xl"></div>
+        <div className="pointer-events-none absolute -right-40 top-20 h-[32rem] w-[32rem] rounded-full bg-[#A83E91]/30 blur-[125px]" />
 
-        <div className="container mx-auto px-6 py-24 lg:py-32 relative">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left Content */}
-            <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 mb-6">
-                <FaMagic />
-                <span className="text-sm font-semibold">
+        <div className="pointer-events-none absolute bottom-[-18%] left-[28%] h-80 w-80 rounded-full bg-[#FF8A5B]/20 blur-[100px]" />
+
+        <div className="pointer-events-none absolute right-[25%] top-[30%] h-72 w-72 rounded-full bg-[#D85B9B]/15 blur-[110px]" />
+
+        <div className="container relative z-10 mx-auto px-6 py-20 lg:py-24">
+
+          <div className="grid items-center gap-10 lg:grid-cols-[0.78fr_1.22fr] xl:gap-14">
+
+            {/* ================= LEFT CONTENT ================= */}
+            <div className="max-w-xl">
+
+              {/* Badge */}
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#D85B9B]/35 bg-[#D85B9B]/10 px-4 py-2 text-[#F4D6A4]">
+                <FaMagic className="text-sm" />
+
+                <span className="text-xs font-semibold sm:text-sm">
                   AI-Powered Resume Builder
                 </span>
               </div>
 
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight">
+              {/* Heading */}
+              <h1 className="text-4xl font-black leading-[1.08] text-white md:text-5xl lg:text-6xl">
                 Build a Resume That
-                <span className="text-primary block">
+                <span className="block text-[#D85B9B]">
                   Gets You Noticed.
                 </span>
               </h1>
 
-              <p className="mt-6 text-lg md:text-xl opacity-70 max-w-xl leading-relaxed">
+              {/* Description */}
+              <p className="mt-5 max-w-lg text-base leading-relaxed text-white/65 md:text-lg">
                 Describe your skills, experience, and career goals. Our AI
                 transforms your information into a professional,
                 job-ready resume in minutes.
               </p>
 
               {/* Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+
                 <Link
                   to="/generate-resume"
-                  className="btn btn-primary btn-lg rounded-xl px-8 shadow-xl hover:scale-105 transition-transform"
+                  className="btn rounded-xl border-0 bg-[#D85B9B] px-7 text-sm text-white shadow-[0_12px_30px_rgba(216,91,155,0.28)] transition-transform hover:scale-[1.03] hover:bg-[#BE477F]"
                 >
                   Create My Resume
                   <FaArrowRight />
@@ -95,116 +72,210 @@ const LandingPage = () => {
 
                 <a
                   href="#how-it-works"
-                  className="btn btn-outline btn-lg rounded-xl px-8"
+                  className="btn btn-outline rounded-xl border-white/25 px-7 text-sm text-white hover:border-white/40 hover:bg-white/10"
                 >
                   See How It Works
                 </a>
               </div>
 
               {/* Trust Points */}
-              <div className="flex flex-wrap gap-x-6 gap-y-3 mt-8 text-sm opacity-70">
+              <div className="mt-7 flex flex-wrap gap-x-5 gap-y-3 text-xs text-white/55 md:text-sm">
+
                 <div className="flex items-center gap-2">
-                  <FaCheckCircle className="text-success" />
+                  <FaCheckCircle className="text-[#F4D6A4]" />
                   AI Generated
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <FaCheckCircle className="text-success" />
+                  <FaCheckCircle className="text-[#F4D6A4]" />
                   Professional Format
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <FaCheckCircle className="text-success" />
+                  <FaCheckCircle className="text-[#F4D6A4]" />
                   Easy to Edit
                 </div>
+
               </div>
             </div>
 
-            {/* Resume Preview */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full"></div>
+            {/* ================= RIGHT RESUME PREVIEW ================= */}
+            <div className="relative flex min-w-0 items-center justify-center py-10 lg:justify-end lg:py-14">
 
-              <div className="relative bg-base-100 rounded-2xl shadow-2xl border border-base-300 p-6 md:p-8 rotate-1 hover:rotate-0 transition-transform duration-500">
-                {/* Fake Resume */}
-                <div className="flex justify-between items-start border-b border-base-300 pb-5">
-                  <div>
-                    <div className="h-5 w-40 bg-base-content/80 rounded mb-2"></div>
-                    <div className="h-3 w-56 bg-base-content/20 rounded"></div>
-                  </div>
+              {/* Main Glow */}
+              <div className="pointer-events-none absolute -inset-10 rounded-full bg-[#6D3F82]/25 blur-[90px]" />
 
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <FaFileAlt className="text-primary text-xl" />
-                  </div>
-                </div>
+              {/* Pink Glow */}
+              <div className="pointer-events-none absolute right-0 top-10 h-80 w-80 rounded-full bg-[#D85B9B]/20 blur-[105px]" />
 
-                <div className="grid grid-cols-3 gap-5 mt-6">
-                  <div className="col-span-2 space-y-4">
-                    <div>
-                      <div className="h-3 w-24 bg-primary rounded mb-3"></div>
+              {/* Coral Glow */}
+              <div className="pointer-events-none absolute bottom-[-30px] left-10 h-64 w-64 rounded-full bg-[#FF8A5B]/20 blur-[90px]" />
 
-                      <div className="space-y-2">
-                        <div className="h-2 w-full bg-base-300 rounded"></div>
-                        <div className="h-2 w-11/12 bg-base-300 rounded"></div>
-                        <div className="h-2 w-10/12 bg-base-300 rounded"></div>
+              {/* Resume Wrapper */}
+              <div className="relative w-full max-w-[700px] xl:max-w-[780px]">
+
+                {/* Glow Around Resume */}
+                <div className="absolute -inset-3 rounded-[32px] bg-gradient-to-br from-[#D85B9B]/30 via-transparent to-[#FF8A5B]/20 blur-2xl" />
+
+                {/* Resume */}
+                <div className="relative overflow-visible rounded-[28px] border border-white/80 bg-white p-5 shadow-[0_35px_100px_rgba(0,0,0,0.50)] rotate-[1deg] transition-transform duration-500 hover:rotate-0 md:p-7">
+
+                  {/* Resume Header */}
+                  <div className="flex items-start justify-between border-b border-[#E7DDE8] pb-5">
+
+                    <div className="min-w-0">
+
+                      <div className="h-5 w-44 rounded-md bg-[#211A36]" />
+
+                      <div className="mt-3 h-2.5 w-56 max-w-full rounded-full bg-[#D9D4DE]" />
+
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <div className="h-1.5 w-16 rounded-full bg-[#E8E3EA]" />
+                        <div className="h-1.5 w-20 rounded-full bg-[#E8E3EA]" />
+                        <div className="h-1.5 w-14 rounded-full bg-[#E8E3EA]" />
                       </div>
+
+                    </div>
+
+                    {/* Resume Icon */}
+                    <div className="ml-4 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#D85B9B]/10 ring-8 ring-[#D85B9B]/5">
+                      <FaFileAlt className="text-xl text-[#D85B9B]" />
+                    </div>
+
+                  </div>
+
+                  {/* Resume Body */}
+                  <div className="mt-6 grid grid-cols-12 gap-6">
+
+                    {/* Main Column */}
+                    <div className="col-span-8 space-y-6">
+
+                      {/* Summary */}
+                      <div>
+                        <div className="mb-3 h-2.5 w-24 rounded-full bg-[#D85B9B]" />
+
+                        <div className="space-y-2.5">
+                          <div className="h-2 w-full rounded-full bg-[#E6E1E8]" />
+                          <div className="h-2 w-11/12 rounded-full bg-[#E6E1E8]" />
+                          <div className="h-2 w-10/12 rounded-full bg-[#E6E1E8]" />
+                          <div className="h-2 w-8/12 rounded-full bg-[#E6E1E8]" />
+                        </div>
+                      </div>
+
+                      {/* Experience */}
+                      <div>
+
+                        <div className="mb-3 h-2.5 w-28 rounded-full bg-[#D85B9B]" />
+
+                        <div className="mb-4">
+                          <div className="mb-2.5 h-2.5 w-40 rounded-full bg-[#211A36]/75" />
+
+                          <div className="space-y-2">
+                            <div className="h-2 w-full rounded-full bg-[#E6E1E8]" />
+                            <div className="h-2 w-11/12 rounded-full bg-[#E6E1E8]" />
+                            <div className="h-2 w-9/12 rounded-full bg-[#E6E1E8]" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="mb-2.5 h-2.5 w-32 rounded-full bg-[#211A36]/75" />
+
+                          <div className="space-y-2">
+                            <div className="h-2 w-full rounded-full bg-[#E6E1E8]" />
+                            <div className="h-2 w-10/12 rounded-full bg-[#E6E1E8]" />
+                          </div>
+                        </div>
+
+                      </div>
+
+                      {/* Projects */}
+                      <div>
+
+                        <div className="mb-3 h-2.5 w-20 rounded-full bg-[#D85B9B]" />
+
+                        <div className="space-y-2.5">
+                          <div className="h-2 w-full rounded-full bg-[#E6E1E8]" />
+                          <div className="h-2 w-11/12 rounded-full bg-[#E6E1E8]" />
+                          <div className="h-2 w-8/12 rounded-full bg-[#E6E1E8]" />
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    {/* Sidebar */}
+                    <div className="col-span-4 space-y-6 border-l border-[#E7DDE8] pl-5">
+
+                      {/* Skills */}
+                      <div>
+
+                        <div className="mb-3 h-2.5 w-16 rounded-full bg-[#D85B9B]" />
+
+                        <div className="flex flex-wrap gap-2">
+                          <div className="h-6 w-14 rounded-lg bg-[#F0EAF1]" />
+                          <div className="h-6 w-18 rounded-lg bg-[#F0EAF1]" />
+                          <div className="h-6 w-12 rounded-lg bg-[#F0EAF1]" />
+                          <div className="h-6 w-20 rounded-lg bg-[#F0EAF1]" />
+                          <div className="h-6 w-16 rounded-lg bg-[#F0EAF1]" />
+                        </div>
+
+                      </div>
+
+                      {/* Education */}
+                      <div>
+
+                        <div className="mb-3 h-2.5 w-20 rounded-full bg-[#D85B9B]" />
+
+                        <div className="space-y-2.5">
+                          <div className="h-2 w-full rounded-full bg-[#E6E1E8]" />
+                          <div className="h-2 w-10/12 rounded-full bg-[#E6E1E8]" />
+                          <div className="h-2 w-11/12 rounded-full bg-[#E6E1E8]" />
+                        </div>
+
+                      </div>
+
+                      {/* Certifications */}
+                      <div>
+
+                        <div className="mb-3 h-2.5 w-20 rounded-full bg-[#D85B9B]" />
+
+                        <div className="space-y-2.5">
+                          <div className="h-2 w-9/12 rounded-full bg-[#E6E1E8]" />
+                          <div className="h-2 w-full rounded-full bg-[#E6E1E8]" />
+                        </div>
+
+                      </div>
+
+                    </div>
+                  </div>
+
+                  {/* AI Optimized Badge */}
+                  <div className="absolute -bottom-6 -left-4 flex items-center gap-3 rounded-2xl border border-[#E7DDE8] bg-white px-4 py-3 text-[#211A36] shadow-[0_18px_50px_rgba(0,0,0,0.30)] sm:-left-7">
+
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#D85B9B] text-white shadow-[0_8px_20px_rgba(216,91,155,0.30)]">
+                      <FaBrain />
                     </div>
 
                     <div>
-                      <div className="h-3 w-28 bg-primary rounded mb-3"></div>
+                      <p className="text-xs font-bold sm:text-sm">
+                        AI Optimized
+                      </p>
 
-                      <div className="space-y-2">
-                        <div className="h-2 w-full bg-base-300 rounded"></div>
-                        <div className="h-2 w-10/12 bg-base-300 rounded"></div>
-                        <div className="h-2 w-9/12 bg-base-300 rounded"></div>
-                      </div>
+                      <p className="text-[10px] text-[#6F6682] sm:text-xs">
+                        Professional Resume
+                      </p>
                     </div>
 
-                    <div>
-                      <div className="h-3 w-20 bg-primary rounded mb-3"></div>
-
-                      <div className="space-y-2">
-                        <div className="h-2 w-full bg-base-300 rounded"></div>
-                        <div className="h-2 w-11/12 bg-base-300 rounded"></div>
-                      </div>
-                    </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div>
-                      <div className="h-3 w-16 bg-primary rounded mb-3"></div>
+                  {/* Job Ready Badge */}
+                  <div className="absolute -right-3 -top-5 hidden items-center gap-2 rounded-full border border-white/80 bg-[#211A36] px-3 py-1.5 text-[10px] font-semibold text-[#F4D6A4] shadow-xl sm:flex">
 
-                      <div className="flex flex-wrap gap-2">
-                        <div className="h-5 w-12 bg-base-300 rounded"></div>
-                        <div className="h-5 w-14 bg-base-300 rounded"></div>
-                        <div className="h-5 w-10 bg-base-300 rounded"></div>
-                        <div className="h-5 w-16 bg-base-300 rounded"></div>
-                      </div>
-                    </div>
+                    <FaCheckCircle className="text-[#D85B9B]" />
 
-                    <div>
-                      <div className="h-3 w-20 bg-primary rounded mb-3"></div>
-
-                      <div className="space-y-2">
-                        <div className="h-2 w-full bg-base-300 rounded"></div>
-                        <div className="h-2 w-10/12 bg-base-300 rounded"></div>
-                        <div className="h-2 w-11/12 bg-base-300 rounded"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* AI Badge */}
-                <div className="absolute -bottom-5 -left-5 bg-base-100 shadow-xl border border-base-300 rounded-xl px-5 py-3 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-primary text-primary-content flex items-center justify-center">
-                    <FaBrain />
+                    Job Ready
                   </div>
 
-                  <div>
-                    <p className="font-bold text-sm">AI Optimized</p>
-                    <p className="text-xs opacity-60">
-                      Professional Resume
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -213,104 +284,140 @@ const LandingPage = () => {
       </section>
 
       {/* ================= STATS ================= */}
-      <section className="border-y border-base-300 bg-base-100">
-        <div className="container mx-auto px-6 py-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <section className="border-y border-white/10 bg-[#17181C]">
+        <div className="container mx-auto px-6 py-9">
+
+          <div className="grid grid-cols-2 gap-7 text-center md:grid-cols-4">
+
             <div>
-              <h3 className="text-3xl font-bold text-primary">AI</h3>
-              <p className="text-sm opacity-60 mt-1">Powered Creation</p>
+              <h3 className="text-2xl font-bold text-[#D85B9B]">
+                AI
+              </h3>
+              <p className="mt-1 text-xs text-white/50">
+                Powered Creation
+              </p>
             </div>
 
             <div>
-              <h3 className="text-3xl font-bold">10x</h3>
-              <p className="text-sm opacity-60 mt-1">Faster Resume Building</p>
+              <h3 className="text-2xl font-bold">
+                10x
+              </h3>
+              <p className="mt-1 text-xs text-white/50">
+                Faster Resume Building
+              </p>
             </div>
 
             <div>
-              <h3 className="text-3xl font-bold">100%</h3>
-              <p className="text-sm opacity-60 mt-1">Editable Content</p>
+              <h3 className="text-2xl font-bold">
+                100%
+              </h3>
+              <p className="mt-1 text-xs text-white/50">
+                Editable Content
+              </p>
             </div>
 
             <div>
-              <h3 className="text-3xl font-bold">1</h3>
-              <p className="text-sm opacity-60 mt-1">Simple Workflow</p>
+              <h3 className="text-2xl font-bold">
+                1
+              </h3>
+              <p className="mt-1 text-xs text-white/50">
+                Simple Workflow
+              </p>
             </div>
+
           </div>
         </div>
       </section>
 
       {/* ================= FEATURES ================= */}
-      <section id="features" className="py-24 bg-base-100">
+      <section
+        id="features"
+        className="bg-[#111214] py-20"
+      >
         <div className="container mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="text-primary font-semibold uppercase tracking-wider text-sm">
+
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#D85B9B]">
               Powerful Features
             </span>
 
-            <h2 className="text-4xl md:text-5xl font-bold mt-3">
+            <h2 className="mt-3 text-3xl font-bold md:text-4xl">
               Everything You Need to Build a Better Resume
             </h2>
 
-            <p className="mt-5 opacity-70 text-lg">
-              Create a polished resume without spending hours formatting and
-              rewriting your information.
+            <p className="mt-4 text-base leading-relaxed text-white/60">
+              Create a polished resume without spending hours formatting
+              and rewriting your information.
             </p>
+
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid gap-7 md:grid-cols-3">
+
             {/* Feature 1 */}
-            <div className="group card bg-base-200 border border-base-300 hover:border-primary/40 shadow-sm hover:shadow-xl transition-all duration-300">
-              <div className="card-body p-8">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+            <div className="group rounded-2xl border border-white/10 bg-[#17181C] transition-all duration-300 hover:border-[#D85B9B]/40 hover:shadow-[0_20px_50px_rgba(216,91,155,0.10)]">
+
+              <div className="p-7">
+
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#D85B9B]/10 text-xl text-[#D85B9B] transition-transform group-hover:scale-110">
                   <FaBrain />
                 </div>
 
-                <h3 className="card-title text-2xl mt-4">
+                <h3 className="mt-4 text-xl font-bold text-white">
                   AI-Powered Generation
                 </h3>
 
-                <p className="opacity-70 leading-relaxed">
+                <p className="mt-3 text-sm leading-relaxed text-white/60">
                   Simply describe yourself and let AI organize your
                   information into a professional resume structure.
                 </p>
+
               </div>
             </div>
 
             {/* Feature 2 */}
-            <div className="group card bg-base-200 border border-base-300 hover:border-primary/40 shadow-sm hover:shadow-xl transition-all duration-300">
-              <div className="card-body p-8">
-                <div className="w-14 h-14 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+            <div className="group rounded-2xl border border-white/10 bg-[#17181C] transition-all duration-300 hover:border-[#F4D6A4]/40 hover:shadow-[0_20px_50px_rgba(244,214,164,0.08)]">
+
+              <div className="p-7">
+
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F4D6A4]/10 text-xl text-[#F4D6A4] transition-transform group-hover:scale-110">
                   <FaFileAlt />
                 </div>
 
-                <h3 className="card-title text-2xl mt-4">
+                <h3 className="mt-4 text-xl font-bold text-white">
                   Professional Structure
                 </h3>
 
-                <p className="opacity-70 leading-relaxed">
+                <p className="mt-3 text-sm leading-relaxed text-white/60">
                   Get organized sections for your skills, education,
                   experience, projects, achievements, and more.
                 </p>
+
               </div>
             </div>
 
             {/* Feature 3 */}
-            <div className="group card bg-base-200 border border-base-300 hover:border-primary/40 shadow-sm hover:shadow-xl transition-all duration-300">
-              <div className="card-body p-8">
-                <div className="w-14 h-14 rounded-2xl bg-accent/10 text-accent flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+            <div className="group rounded-2xl border border-white/10 bg-[#17181C] transition-all duration-300 hover:border-[#FF8A5B]/40 hover:shadow-[0_20px_50px_rgba(255,138,91,0.08)]">
+
+              <div className="p-7">
+
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FF8A5B]/10 text-xl text-[#FF8A5B] transition-transform group-hover:scale-110">
                   <FaRocket />
                 </div>
 
-                <h3 className="card-title text-2xl mt-4">
+                <h3 className="mt-4 text-xl font-bold text-white">
                   Easy to Customize
                 </h3>
 
-                <p className="opacity-70 leading-relaxed">
-                  Review the generated information, edit anything you want,
-                  and create a resume that represents you.
+                <p className="mt-3 text-sm leading-relaxed text-white/60">
+                  Review the generated information, edit anything you
+                  want, and create a resume that represents you.
                 </p>
+
               </div>
             </div>
+
           </div>
         </div>
       </section>
@@ -318,88 +425,106 @@ const LandingPage = () => {
       {/* ================= HOW IT WORKS ================= */}
       <section
         id="how-it-works"
-        className="py-24 bg-base-200 border-y border-base-300"
+        className="border-y border-white/10 bg-[#17181C] py-20"
       >
         <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <span className="text-primary font-semibold uppercase tracking-wider text-sm">
+
+          <div className="mb-14 text-center">
+
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#D85B9B]">
               Simple Process
             </span>
 
-            <h2 className="text-4xl md:text-5xl font-bold mt-3">
+            <h2 className="mt-3 text-3xl font-bold md:text-4xl">
               Create Your Resume in 3 Steps
             </h2>
+
           </div>
 
-          <div className="grid md:grid-cols-3 gap-10 max-w-5xl mx-auto">
+          <div className="mx-auto grid max-w-5xl gap-10 md:grid-cols-3">
+
             {/* Step 1 */}
             <div className="text-center">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-primary text-primary-content flex items-center justify-center text-2xl font-bold shadow-lg">
+
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#D85B9B] text-xl font-bold text-white shadow-[0_10px_30px_rgba(216,91,155,0.25)]">
                 1
               </div>
 
-              <h3 className="text-xl font-bold mt-6">
+              <h3 className="mt-5 text-lg font-bold">
                 Describe Yourself
               </h3>
 
-              <p className="opacity-70 mt-3 leading-relaxed">
-                Enter your education, skills, experience, projects, and career
-                goals.
+              <p className="mt-3 text-sm leading-relaxed text-white/55">
+                Enter your education, skills, experience, projects, and
+                career goals.
               </p>
+
             </div>
 
             {/* Step 2 */}
             <div className="text-center">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-primary text-primary-content flex items-center justify-center text-2xl font-bold shadow-lg">
+
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#D85B9B] text-xl font-bold text-white shadow-[0_10px_30px_rgba(216,91,155,0.25)]">
                 2
               </div>
 
-              <h3 className="text-xl font-bold mt-6">
+              <h3 className="mt-5 text-lg font-bold">
                 Let AI Build It
               </h3>
 
-              <p className="opacity-70 mt-3 leading-relaxed">
+              <p className="mt-3 text-sm leading-relaxed text-white/55">
                 Our AI organizes your information into a structured
                 professional resume.
               </p>
+
             </div>
 
             {/* Step 3 */}
             <div className="text-center">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-primary text-primary-content flex items-center justify-center text-2xl font-bold shadow-lg">
+
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#D85B9B] text-xl font-bold text-white shadow-[0_10px_30px_rgba(216,91,155,0.25)]">
                 3
               </div>
 
-              <h3 className="text-xl font-bold mt-6">
+              <h3 className="mt-5 text-lg font-bold">
                 Review & Customize
               </h3>
 
-              <p className="opacity-70 mt-3 leading-relaxed">
-                Review your generated resume, make changes, and create your
-                final version.
+              <p className="mt-3 text-sm leading-relaxed text-white/55">
+                Review your generated resume, make changes, and create
+                your final version.
               </p>
+
             </div>
+
           </div>
         </div>
       </section>
 
       {/* ================= TESTIMONIAL ================= */}
-      <section className="py-24 bg-base-100">
+      <section className="bg-[#111214] py-20">
+
         <div className="container mx-auto px-6">
-          <div className="text-center mb-14">
-            <span className="text-primary font-semibold uppercase tracking-wider text-sm">
+
+          <div className="mb-12 text-center">
+
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#D85B9B]">
               User Experience
             </span>
 
-            <h2 className="text-4xl md:text-5xl font-bold mt-3">
+            <h2 className="mt-3 text-3xl font-bold md:text-4xl">
               Built to Make Resume Creation Easier
             </h2>
+
           </div>
 
-          <div className="max-w-3xl mx-auto">
-            <div className="card bg-base-200 border border-base-300 shadow-xl">
-              <div className="card-body p-8 md:p-12 text-center">
-                <div className="flex justify-center gap-1 text-warning mb-5">
+          <div className="mx-auto max-w-3xl">
+
+            <div className="rounded-2xl border border-white/10 bg-[#17181C] shadow-[0_20px_65px_rgba(0,0,0,0.25)]">
+
+              <div className="p-8 text-center md:p-10">
+
+                <div className="mb-5 flex justify-center gap-1 text-[#F4D6A4]">
                   <FaStar />
                   <FaStar />
                   <FaStar />
@@ -407,17 +532,23 @@ const LandingPage = () => {
                   <FaStar />
                 </div>
 
-                <blockquote className="text-xl md:text-2xl font-medium leading-relaxed">
+                <blockquote className="text-lg font-medium leading-relaxed text-white/85 md:text-xl">
                   "Describe your experience once and let AI turn it into a
                   professional resume structure."
                 </blockquote>
 
-                <div className="mt-7">
-                  <p className="font-bold">AI Resume Builder</p>
-                  <p className="text-sm opacity-60">
+                <div className="mt-6">
+
+                  <p className="text-sm font-bold">
+                    AI Resume Builder
+                  </p>
+
+                  <p className="mt-1 text-xs text-white/45">
                     Simple. Professional. AI-powered.
                   </p>
+
                 </div>
+
               </div>
             </div>
           </div>
@@ -425,103 +556,146 @@ const LandingPage = () => {
       </section>
 
       {/* ================= CTA ================= */}
-      <section className="py-24 bg-primary text-primary-content">
-        <div className="container mx-auto px-6 text-center">
-          <div className="max-w-3xl mx-auto">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-primary-content/10 flex items-center justify-center text-3xl mb-6">
+      <section className="relative overflow-hidden bg-[#D85B9B] py-20 text-white">
+
+        <div className="pointer-events-none absolute -left-20 top-0 h-80 w-80 rounded-full bg-[#6D3F82]/30 blur-[90px]" />
+
+        <div className="pointer-events-none absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-[#FF8A5B]/25 blur-[100px]" />
+
+        <div className="container relative z-10 mx-auto px-6 text-center">
+
+          <div className="mx-auto max-w-3xl">
+
+            <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-2xl">
               <FaMagic />
             </div>
 
-            <h2 className="text-4xl md:text-5xl font-black">
+            <h2 className="text-3xl font-black md:text-4xl">
               Ready to Build Your Resume?
             </h2>
 
-            <p className="mt-5 text-lg opacity-90">
-              Turn your skills and experience into a professional resume with
-              the help of AI.
+            <p className="mt-4 text-base leading-relaxed opacity-90 md:text-lg">
+              Turn your skills and experience into a professional resume
+              with the help of AI.
             </p>
 
             <Link
               to="/generate-resume"
-              className="btn btn-lg bg-base-100 text-base-content hover:bg-base-200 border-none rounded-xl mt-8 px-10"
+              className="btn mt-7 rounded-xl border-none bg-[#F4D6A4] px-9 text-sm text-[#211A36] shadow-lg hover:bg-white"
             >
               Start Building Now
               <FaArrowRight />
             </Link>
+
           </div>
         </div>
       </section>
 
       {/* ================= FOOTER ================= */}
-      <footer className="bg-base-300">
-        <div className="container mx-auto px-6 py-14">
-          <div className="grid md:grid-cols-3 gap-10">
+      <footer className="border-t border-white/10 bg-[#17181C]">
+
+        <div className="container mx-auto px-6 py-12">
+
+          <div className="grid gap-10 md:grid-cols-3">
+
             {/* Brand */}
             <div>
+
               <Link
                 to="/"
-                className="flex items-center gap-3 text-xl font-bold"
+                className="flex items-center gap-3 text-lg font-bold text-white"
               >
-                <div className="w-10 h-10 rounded-xl bg-primary text-primary-content flex items-center justify-center">
+
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#D85B9B] text-white">
                   <FaBrain />
                 </div>
 
-                Resume<span className="text-primary">AI</span>
+                Resume<span className="text-[#D85B9B]">AI</span>
+
               </Link>
 
-              <p className="mt-4 opacity-60 max-w-sm leading-relaxed">
+              <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/50">
                 Build professional resumes faster with AI-powered resume
                 generation.
               </p>
+
             </div>
 
             {/* Product */}
             <div>
-              <h3 className="font-bold mb-4">Product</h3>
 
-              <div className="flex flex-col gap-3 opacity-70">
-                <a href="#features" className="hover:text-primary">
+              <h3 className="mb-4 text-sm font-bold text-white">
+                Product
+              </h3>
+
+              <div className="flex flex-col gap-3 text-sm text-white/50">
+
+                <a
+                  href="#features"
+                  className="transition-colors hover:text-[#D85B9B]"
+                >
                   Features
                 </a>
 
-                <a href="#how-it-works" className="hover:text-primary">
+                <a
+                  href="#how-it-works"
+                  className="transition-colors hover:text-[#D85B9B]"
+                >
                   How It Works
                 </a>
 
                 <Link
                   to="/generate-resume"
-                  className="hover:text-primary"
+                  className="transition-colors hover:text-[#D85B9B]"
                 >
                   Create Resume
                 </Link>
+
               </div>
             </div>
 
             {/* About */}
             <div>
-              <h3 className="font-bold mb-4">About</h3>
 
-              <div className="flex flex-col gap-3 opacity-70">
-                <a href="#" className="hover:text-primary">
+              <h3 className="mb-4 text-sm font-bold text-white">
+                About
+              </h3>
+
+              <div className="flex flex-col gap-3 text-sm text-white/50">
+
+                <a
+                  href="#"
+                  className="transition-colors hover:text-[#D85B9B]"
+                >
                   About Us
                 </a>
 
-                <a href="#" className="hover:text-primary">
+                <a
+                  href="#"
+                  className="transition-colors hover:text-[#D85B9B]"
+                >
                   Privacy Policy
                 </a>
 
-                <a href="#" className="hover:text-primary">
+                <a
+                  href="#"
+                  className="transition-colors hover:text-[#D85B9B]"
+                >
                   Terms of Service
                 </a>
+
               </div>
             </div>
+
           </div>
 
-          <div className="border-t border-base-content/10 mt-10 pt-6 text-center text-sm opacity-50">
+          <div className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-white/35">
             © {new Date().getFullYear()} ResumeAI. All rights reserved.
           </div>
+
         </div>
       </footer>
+
     </div>
   );
 };
