@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const baseURL = "resume-builder-production-f36e.up.railway.app";
+export const baseURL = import.meta.url.env.VITE_API_URL;
 
 export const axiosInstance = axios.create({
   baseURL: baseURL,
