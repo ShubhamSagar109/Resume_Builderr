@@ -393,81 +393,83 @@ const GenerateResume = () => {
   // =========================================================
 
   const handleGenerateResume = async () => {
-  if (!userDescription.trim()) {
-    toast.error("Please enter your resume description.");
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    console.log(
-      "Sending description:",
-      userDescription
-    );
-
-    const response = await generateResume(
-      userDescription.trim()
-    );
-
-    console.log(
-      "FULL BACKEND RESPONSE:",
-      response
-    );
-
-    if (
-      !response ||
-      typeof response !== "object" ||
-      Array.isArray(response)
-    ) {
-      throw new Error(
-        "Backend returned invalid resume data."
-      );
+    if (!userDescription.trim()) {
+      toast.error("Please enter your resume description.");
+      return;
     }
 
-    const formattedData =
-      formatResumeData(response);
+    try {
+      setLoading(true);
 
-    console.log(
-      "FORMATTED RESUME DATA:",
-      formattedData
-    );
+      console.log(
+        "Sending description:",
+        userDescription.trim()
+      );
 
-    reset(formattedData);
+      // ✅ FIX: Send as object with userDescription field
+      const response = await generateResume({
+        userDescription: userDescription.trim()
+      });
 
-    setGeneratedResume(formattedData);
+      console.log(
+        "FULL BACKEND RESPONSE:",
+        response
+      );
 
-    toast.success(
-      "Resume generated successfully!"
-    );
-  } catch (error) {
-    console.error(
-      "Resume generation error:",
-      error
-    );
+      if (
+        !response ||
+        typeof response !== "object" ||
+        Array.isArray(response)
+      ) {
+        throw new Error(
+          "Backend returned invalid resume data."
+        );
+      }
 
-    console.error(
-      "HTTP status:",
-      error?.response?.status
-    );
+      const formattedData =
+        formatResumeData(response);
 
-    console.error(
-      "Backend response:",
-      error?.response?.data
-    );
+      console.log(
+        "FORMATTED RESUME DATA:",
+        formattedData
+      );
 
-    const backendMessage =
-      error?.response?.data?.message ||
-      error?.response?.data?.error;
+      reset(formattedData);
 
-    toast.error(
-      backendMessage ||
-        "Failed to generate resume. Check backend console."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+      setGeneratedResume(formattedData);
+
+      toast.success(
+        "Resume generated successfully!"
+      );
+    } catch (error) {
+      console.error(
+        "Resume generation error:",
+        error
+      );
+
+      console.error(
+        "HTTP status:",
+        error?.response?.status
+      );
+
+      console.error(
+        "Backend response:",
+        error?.response?.data
+      );
+
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message;
+
+      toast.error(
+        backendMessage ||
+          "Failed to generate resume. Check backend console."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
     
   // =========================================================

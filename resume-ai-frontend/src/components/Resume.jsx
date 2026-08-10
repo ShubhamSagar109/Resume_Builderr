@@ -20,7 +20,6 @@ const Resume = ({ data }) => {
   // =========================================================
 
   if (!data) {
-    
     return (
       <div className="text-center mt-10 p-10">
         <h2 className="text-2xl font-semibold">
@@ -69,7 +68,7 @@ const Resume = ({ data }) => {
     : [];
 
   // =========================================================
-  // PDF DOWNLOAD
+  // PDF DOWNLOAD (IMPROVED VERSION)
   // =========================================================
 
   const handleDownloadPdf = async () => {
@@ -81,10 +80,10 @@ const Resume = ({ data }) => {
     try {
       const element = resumeRef.current;
 
-      await new Promise((resolve) =>
-        setTimeout(resolve, 300)
-      );
+      // Wait for any pending renders
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
+      // Capture the resume as an image
       const dataUrl = await toPng(element, {
         quality: 1,
         pixelRatio: 2,
@@ -92,15 +91,7 @@ const Resume = ({ data }) => {
         cacheBust: true,
       });
 
-      const img = new Image();
-
-      img.src = dataUrl;
-
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-      });
-
+      // Create PDF
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -108,17 +99,26 @@ const Resume = ({ data }) => {
         compress: true,
       });
 
-      const pdfWidth = 210;
-      const pdfHeight = 297;
+      const pdfWidth = 210; // A4 width in mm
+      const pdfHeight = 297; // A4 height in mm
 
+      // Load image to get dimensions
+      const img = new Image();
+      img.src = dataUrl;
+      
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+
+      // Calculate image dimensions to fit A4
       const imageWidth = pdfWidth;
+      const imageHeight = (img.height * imageWidth) / img.width;
 
-      const imageHeight =
-        (img.height * imageWidth) / img.width;
-
-      let heightLeft = imageHeight;
       let position = 0;
+      let heightLeft = imageHeight;
 
+      // Add first page
       pdf.addImage(
         dataUrl,
         "PNG",
@@ -130,11 +130,10 @@ const Resume = ({ data }) => {
 
       heightLeft -= pdfHeight;
 
+      // Add subsequent pages if content overflows
       while (heightLeft > 0) {
-        position = heightLeft - imageHeight;
-
+        position = -((imageHeight - heightLeft) - pdfHeight);
         pdf.addPage();
-
         pdf.addImage(
           dataUrl,
           "PNG",
@@ -143,23 +142,20 @@ const Resume = ({ data }) => {
           imageWidth,
           imageHeight
         );
-
         heightLeft -= pdfHeight;
       }
 
-      const fullName =
-        personalInformation.fullName?.trim();
-
+      // Generate filename
+      const fullName = personalInformation.fullName?.trim();
       const fileName = fullName
         ? `${fullName.replace(/\s+/g, "_")}_Resume.pdf`
         : "Resume.pdf";
 
       pdf.save(fileName);
+      
     } catch (error) {
-      console.error(
-        "Error generating PDF:",
-        error
-      );
+      console.error("Error generating PDF:", error);
+      // You might want to show a toast notification here
     }
   };
 
