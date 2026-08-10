@@ -147,27 +147,18 @@ public class ResumeServiceImpl implements ResumeService {
     // CALL AI
     // =====================================================
 
-    private String callAI(
-            String promptContent
-    ) {
+    private String callAI(String promptContent){
+        Prompt prompt=new Prompt(promptContent);
 
-        Prompt prompt =
-                new Prompt(promptContent);
+        String response=chatClient.
+                prompt(prompt)
+                .call().content();
 
-        String response =
-                chatClient
-                        .prompt(prompt)
-                        .call()
-                        .content();
-
-        if (response == null ||
-                response.isBlank()) {
-
+        if(response==null || response.isBlank()){
             throw new RuntimeException(
-                    "AI returned an empty response."
+                    "Groq returned an empty response."
             );
         }
-
         return response;
     }
 
