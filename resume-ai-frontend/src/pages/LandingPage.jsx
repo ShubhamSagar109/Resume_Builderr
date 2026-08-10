@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
+
 import {
   FaArrowRight,
   FaBrain,
@@ -13,10 +14,16 @@ import {
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#111214] text-white">
-       <Navbar/>
+    <div className="min-h-screen bg-[#111214] text-white">
 
-      {/* ================= HERO ================= */}
+      {/* =====================================================
+          NAVBAR
+      ===================================================== */}
+      <Navbar />
+
+      {/* =====================================================
+          HERO
+      ===================================================== */}
       <section className="relative max-w-full overflow-hidden bg-[#111214]">
 
         {/* Background Decorations */}
@@ -32,16 +39,20 @@ const LandingPage = () => {
 
           <div className="grid items-center gap-10 lg:grid-cols-[0.78fr_1.22fr] xl:gap-14">
 
-            {/* ================= LEFT CONTENT ================= */}
+            {/* =================================================
+                LEFT CONTENT
+            ================================================= */}
             <div className="max-w-xl">
 
               {/* Badge */}
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#D85B9B]/35 bg-[#D85B9B]/10 px-4 py-2 text-[#F4D6A4]">
+
                 <FaMagic className="text-sm" />
 
                 <span className="text-xs font-semibold sm:text-sm">
                   AI-Powered Resume Builder
                 </span>
+
               </div>
 
               {/* Heading */}
@@ -76,6 +87,7 @@ const LandingPage = () => {
                 >
                   See How It Works
                 </a>
+
               </div>
 
               {/* Trust Points */}
@@ -97,9 +109,12 @@ const LandingPage = () => {
                 </div>
 
               </div>
+
             </div>
 
-            {/* ================= RIGHT RESUME PREVIEW ================= */}
+            {/* =================================================
+                RIGHT RESUME PREVIEW
+            ================================================= */}
             <div className="relative flex min-w-0 items-center justify-center py-10 lg:justify-end lg:py-14">
 
               {/* Main Glow */}
@@ -152,6 +167,7 @@ const LandingPage = () => {
 
                       {/* Summary */}
                       <div>
+
                         <div className="mb-3 h-2.5 w-24 rounded-full bg-[#D85B9B]" />
 
                         <div className="space-y-2.5">
@@ -160,6 +176,7 @@ const LandingPage = () => {
                           <div className="h-2 w-10/12 rounded-full bg-[#E6E1E8]" />
                           <div className="h-2 w-8/12 rounded-full bg-[#E6E1E8]" />
                         </div>
+
                       </div>
 
                       {/* Experience */}
@@ -168,6 +185,7 @@ const LandingPage = () => {
                         <div className="mb-3 h-2.5 w-28 rounded-full bg-[#D85B9B]" />
 
                         <div className="mb-4">
+
                           <div className="mb-2.5 h-2.5 w-40 rounded-full bg-[#211A36]/75" />
 
                           <div className="space-y-2">
@@ -175,15 +193,18 @@ const LandingPage = () => {
                             <div className="h-2 w-11/12 rounded-full bg-[#E6E1E8]" />
                             <div className="h-2 w-9/12 rounded-full bg-[#E6E1E8]" />
                           </div>
+
                         </div>
 
                         <div>
+
                           <div className="mb-2.5 h-2.5 w-32 rounded-full bg-[#211A36]/75" />
 
                           <div className="space-y-2">
                             <div className="h-2 w-full rounded-full bg-[#E6E1E8]" />
                             <div className="h-2 w-10/12 rounded-full bg-[#E6E1E8]" />
                           </div>
+
                         </div>
 
                       </div>
@@ -247,6 +268,7 @@ const LandingPage = () => {
                       </div>
 
                     </div>
+
                   </div>
 
                   {/* AI Optimized Badge */}
@@ -274,17 +296,22 @@ const LandingPage = () => {
                     <FaCheckCircle className="text-[#D85B9B]" />
 
                     Job Ready
+
                   </div>
 
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </section>
 
-      {/* ================= STATS ================= */}
+      {/* =====================================================
+          STATS
+      ===================================================== */}
       <section className="border-y border-white/10 bg-[#17181C]">
+
         <div className="container mx-auto px-6 py-9">
 
           <div className="grid grid-cols-2 gap-7 text-center md:grid-cols-4">
@@ -293,47 +320,56 @@ const LandingPage = () => {
               <h3 className="text-2xl font-bold text-[#D85B9B]">
                 AI
               </h3>
+
               <p className="mt-1 text-xs text-white/50">
                 Powered Creation
               </p>
             </div>
 
             <div>
-              <h3 className="text-2xl font-bold">
+              <h3 className="text-2xl font-bold text-white">
                 10x
               </h3>
+
               <p className="mt-1 text-xs text-white/50">
                 Faster Resume Building
               </p>
             </div>
 
             <div>
-              <h3 className="text-2xl font-bold">
+              <h3 className="text-2xl font-bold text-white">
                 100%
               </h3>
+
               <p className="mt-1 text-xs text-white/50">
                 Editable Content
               </p>
             </div>
 
             <div>
-              <h3 className="text-2xl font-bold">
+              <h3 className="text-2xl font-bold text-white">
                 1
               </h3>
+
               <p className="mt-1 text-xs text-white/50">
                 Simple Workflow
               </p>
             </div>
 
           </div>
+
         </div>
+
       </section>
 
-      {/* ================= FEATURES ================= */}
+      {/* =====================================================
+          FEATURES
+      ===================================================== */}
       <section
         id="features"
         className="bg-[#111214] py-20"
       >
+
         <div className="container mx-auto px-6">
 
           <div className="mx-auto mb-12 max-w-2xl text-center">
@@ -342,7 +378,7 @@ const LandingPage = () => {
               Powerful Features
             </span>
 
-            <h2 className="mt-3 text-3xl font-bold md:text-4xl">
+            <h2 className="mt-3 text-3xl font-bold text-white md:text-4xl">
               Everything You Need to Build a Better Resume
             </h2>
 
@@ -374,6 +410,7 @@ const LandingPage = () => {
                 </p>
 
               </div>
+
             </div>
 
             {/* Feature 2 */}
@@ -395,6 +432,7 @@ const LandingPage = () => {
                 </p>
 
               </div>
+
             </div>
 
             {/* Feature 3 */}
@@ -416,17 +454,23 @@ const LandingPage = () => {
                 </p>
 
               </div>
+
             </div>
 
           </div>
+
         </div>
+
       </section>
 
-      {/* ================= HOW IT WORKS ================= */}
+      {/* =====================================================
+          HOW IT WORKS
+      ===================================================== */}
       <section
         id="how-it-works"
         className="border-y border-white/10 bg-[#17181C] py-20"
       >
+
         <div className="container mx-auto px-6">
 
           <div className="mb-14 text-center">
@@ -435,7 +479,7 @@ const LandingPage = () => {
               Simple Process
             </span>
 
-            <h2 className="mt-3 text-3xl font-bold md:text-4xl">
+            <h2 className="mt-3 text-3xl font-bold text-white md:text-4xl">
               Create Your Resume in 3 Steps
             </h2>
 
@@ -450,7 +494,7 @@ const LandingPage = () => {
                 1
               </div>
 
-              <h3 className="mt-5 text-lg font-bold">
+              <h3 className="mt-5 text-lg font-bold text-white">
                 Describe Yourself
               </h3>
 
@@ -468,7 +512,7 @@ const LandingPage = () => {
                 2
               </div>
 
-              <h3 className="mt-5 text-lg font-bold">
+              <h3 className="mt-5 text-lg font-bold text-white">
                 Let AI Build It
               </h3>
 
@@ -486,7 +530,7 @@ const LandingPage = () => {
                 3
               </div>
 
-              <h3 className="mt-5 text-lg font-bold">
+              <h3 className="mt-5 text-lg font-bold text-white">
                 Review & Customize
               </h3>
 
@@ -498,10 +542,14 @@ const LandingPage = () => {
             </div>
 
           </div>
+
         </div>
+
       </section>
 
-      {/* ================= TESTIMONIAL ================= */}
+      {/* =====================================================
+          TESTIMONIAL
+      ===================================================== */}
       <section className="bg-[#111214] py-20">
 
         <div className="container mx-auto px-6">
@@ -512,7 +560,7 @@ const LandingPage = () => {
               User Experience
             </span>
 
-            <h2 className="mt-3 text-3xl font-bold md:text-4xl">
+            <h2 className="mt-3 text-3xl font-bold text-white md:text-4xl">
               Built to Make Resume Creation Easier
             </h2>
 
@@ -539,7 +587,7 @@ const LandingPage = () => {
 
                 <div className="mt-6">
 
-                  <p className="text-sm font-bold">
+                  <p className="text-sm font-bold text-white">
                     AI Resume Builder
                   </p>
 
@@ -550,12 +598,18 @@ const LandingPage = () => {
                 </div>
 
               </div>
+
             </div>
+
           </div>
+
         </div>
+
       </section>
 
-      {/* ================= CTA ================= */}
+      {/* =====================================================
+          CTA
+      ===================================================== */}
       <section className="relative overflow-hidden bg-[#D85B9B] py-20 text-white">
 
         <div className="pointer-events-none absolute -left-20 top-0 h-80 w-80 rounded-full bg-[#6D3F82]/30 blur-[90px]" />
@@ -588,10 +642,14 @@ const LandingPage = () => {
             </Link>
 
           </div>
+
         </div>
+
       </section>
 
-      {/* ================= FOOTER ================= */}
+      {/* =====================================================
+          FOOTER
+      ===================================================== */}
       <footer className="border-t border-white/10 bg-[#17181C]">
 
         <div className="container mx-auto px-6 py-12">
@@ -652,6 +710,7 @@ const LandingPage = () => {
                 </Link>
 
               </div>
+
             </div>
 
             {/* About */}
@@ -685,6 +744,7 @@ const LandingPage = () => {
                 </a>
 
               </div>
+
             </div>
 
           </div>
@@ -694,6 +754,7 @@ const LandingPage = () => {
           </div>
 
         </div>
+
       </footer>
 
     </div>
