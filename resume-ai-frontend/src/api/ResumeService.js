@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const baseURL = "http://localhost:8080";
+export const baseURL = "resume-builder-production-f36e.up.railway.app";
 
 export const axiosInstance = axios.create({
   baseURL: baseURL,
