@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import "daisyui/dist/full.css";
 
 import {
   FaGithub,
@@ -20,12 +21,10 @@ const Resume = ({ data }) => {
 
   if (!data) {
     return (
-      <div className="flex justify-center items-center min-h-[300px]">
-        <div className="text-center p-10">
-          <h2 className="text-2xl font-semibold text-gray-700">
-            No Resume Data Found
-          </h2>
-        </div>
+      <div className="text-center mt-10 p-10">
+        <h2 className="text-2xl font-semibold">
+          No Resume Data Found
+        </h2>
       </div>
     );
   }
@@ -37,24 +36,127 @@ const Resume = ({ data }) => {
   const personalInformation = data.personalInformation || {};
 
   const skills = Array.isArray(data.skills) ? data.skills : [];
-  const experience = Array.isArray(data.experience) ? data.experience : [];
-  const education = Array.isArray(data.education) ? data.education : [];
+  const experience = Array.isArray(data.experience)
+    ? data.experience
+    : [];
+  const education = Array.isArray(data.education)
+    ? data.education
+    : [];
   const certifications = Array.isArray(data.certifications)
     ? data.certifications
     : [];
-  const projects = Array.isArray(data.projects) ? data.projects : [];
+  const projects = Array.isArray(data.projects)
+    ? data.projects
+    : [];
   const achievements = Array.isArray(data.achievements)
     ? data.achievements
     : [];
-  const languages = Array.isArray(data.languages) ? data.languages : [];
-  const interests = Array.isArray(data.interests) ? data.interests : [];
+  const languages = Array.isArray(data.languages)
+    ? data.languages
+    : [];
+  const interests = Array.isArray(data.interests)
+    ? data.interests
+    : [];
 
   // =========================================================
-  // HELPERS
+  // PDF DOWNLOAD
+  // =========================================================
+
+  const handleDownloadPdf = async () => {
+    if (!resumeRef.current) {
+      console.error("Resume element not found.");
+      return;
+    }
+
+    try {
+      const element = resumeRef.current;
+
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      const dataUrl = await toPng(element, {
+        quality: 1,
+        pixelRatio: 2,
+        backgroundColor: "#ffffff",
+        cacheBust: true,
+      });
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true,
+      });
+
+      const pageWidth = 210;
+      const pageHeight = 297;
+
+      const img = new Image();
+
+      img.src = dataUrl;
+
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+
+      const imgWidth = img.width;
+      const imgHeight = img.height;
+
+      const widthRatio = pageWidth / imgWidth;
+      const heightRatio = pageHeight / imgHeight;
+
+      const scale = Math.min(widthRatio, heightRatio);
+
+      const finalWidth = imgWidth * scale;
+      const finalHeight = imgHeight * scale;
+
+      const x = (pageWidth - finalWidth) / 2;
+      const y = (pageHeight - finalHeight) / 2;
+
+      pdf.addImage(
+        dataUrl,
+        "PNG",
+        x,
+        y,
+        finalWidth,
+        finalHeight,
+        undefined,
+        "FAST"
+      );
+
+      const fullName = personalInformation.fullName?.trim();
+
+      const fileName = fullName
+        ? `${fullName.replace(/\s+/g, "_")}_Resume.pdf`
+        : "Resume.pdf";
+
+      pdf.save(fileName);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+
+  // =========================================================
+  // REUSABLE STYLES
+  // =========================================================
+
+  const sectionTitle =
+    "text-[13px] font-bold uppercase tracking-wide border-b border-gray-300 pb-[4px]";
+
+  const subHeading =
+    "font-semibold text-[11px]";
+
+  const bodyText =
+    "text-[10px] leading-[1.4]";
+
+  // =========================================================
+  // FLEXIBLE VALUE HELPERS
   // =========================================================
 
   const getCertificationTitle = (cert) => {
-    if (typeof cert === "string") return cert;
+    if (typeof cert === "string") {
+      return cert;
+    }
 
     return (
       cert?.title ||
@@ -88,7 +190,9 @@ const Resume = ({ data }) => {
   };
 
   const getAchievementTitle = (achievement) => {
-    if (typeof achievement === "string") return achievement;
+    if (typeof achievement === "string") {
+      return achievement;
+    }
 
     return (
       achievement?.title ||
@@ -120,7 +224,9 @@ const Resume = ({ data }) => {
   };
 
   const getLanguageName = (language) => {
-    if (typeof language === "string") return language;
+    if (typeof language === "string") {
+      return language;
+    }
 
     return (
       language?.name ||
@@ -131,7 +237,9 @@ const Resume = ({ data }) => {
   };
 
   const getInterestName = (interest) => {
-    if (typeof interest === "string") return interest;
+    if (typeof interest === "string") {
+      return interest;
+    }
 
     return (
       interest?.name ||
@@ -142,273 +250,111 @@ const Resume = ({ data }) => {
   };
 
   // =========================================================
-  // PDF DOWNLOAD
-  // =========================================================
-
-  const handleDownloadPdf = async () => {
-    if (!resumeRef.current) {
-      console.error("Resume element not found.");
-      return;
-    }
-
-    try {
-      const element = resumeRef.current;
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      const dataUrl = await toPng(element, {
-        cacheBust: true,
-        pixelRatio: 2,
-        quality: 1,
-        backgroundColor: "#ffffff",
-        width: element.scrollWidth,
-        height: element.scrollHeight,
-        style: {
-          margin: "0",
-          transform: "none",
-        },
-      });
-
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-        compress: true,
-      });
-
-      const pageWidth = 210;
-      const pageHeight = 297;
-
-      const img = new Image();
-
-      img.src = dataUrl;
-
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-      });
-
-      const imgRatio = img.width / img.height;
-      const pageRatio = pageWidth / pageHeight;
-
-      let finalWidth;
-      let finalHeight;
-
-      if (imgRatio > pageRatio) {
-        finalWidth = pageWidth;
-        finalHeight = pageWidth / imgRatio;
-      } else {
-        finalHeight = pageHeight;
-        finalWidth = pageHeight * imgRatio;
-      }
-
-      const x = (pageWidth - finalWidth) / 2;
-      const y = 0;
-
-      pdf.addImage(
-        dataUrl,
-        "PNG",
-        x,
-        y,
-        finalWidth,
-        finalHeight,
-        undefined,
-        "FAST"
-      );
-
-      const fullName = personalInformation.fullName?.trim();
-
-      const fileName = fullName
-        ? `${fullName.replace(/\s+/g, "_")}_Resume.pdf`
-        : "Resume.pdf";
-
-      pdf.save(fileName);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-    }
-  };
-
-  // =========================================================
-  // STYLES
-  // =========================================================
-
-  const sectionTitle = {
-    fontSize: "12px",
-    fontWeight: 700,
-    textTransform: "uppercase",
-    letterSpacing: "0.3px",
-    borderBottom: "1px solid #222",
-    paddingBottom: "3px",
-    marginBottom: "5px",
-    lineHeight: "1.2",
-  };
-
-  const bodyText = {
-    fontSize: "9px",
-    lineHeight: "1.35",
-    margin: 0,
-  };
-
-  const smallText = {
-    fontSize: "8px",
-    lineHeight: "1.3",
-  };
-
-  const subHeading = {
-    fontSize: "10px",
-    fontWeight: 700,
-    lineHeight: "1.25",
-    margin: 0,
-  };
-
-  // =========================================================
   // RESUME
   // =========================================================
 
   return (
-    <div
-      style={{
-        width: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        backgroundColor: "#f3f4f6",
-        padding: "24px 0 40px",
-        boxSizing: "border-box",
-      }}
-    >
-      {/* =====================================================
-          A4 RESUME
-      ====================================================== */}
-
+    <>
       <div
         ref={resumeRef}
-        style={{
-          width: "210mm",
-          minHeight: "297mm",
-          height: "297mm",
-          backgroundColor: "#ffffff",
-          color: "#111111",
-          boxSizing: "border-box",
-          padding: "9mm 11mm",
-          margin: "0",
-          overflow: "hidden",
-          fontFamily:
-            "Arial, Helvetica, sans-serif",
-          display: "block",
-          position: "relative",
-        }}
+        className="
+          w-[210mm]
+          h-[297mm]
+          mx-auto
+          bg-white
+          text-black
+          px-[10mm]
+          py-[9mm]
+          overflow-hidden
+          border
+          border-gray-300
+          shadow-xl
+          box-border
+        "
       >
         {/* =================================================
             HEADER
         ================================================== */}
 
-        <header
-          style={{
-            width: "100%",
-            textAlign: "center",
-            borderBottom: "1px solid #222",
-            paddingBottom: "7px",
-            margin: 0,
-            boxSizing: "border-box",
-          }}
-        >
+        <header className="text-center border-b border-gray-400 pb-2.5">
           <h1
-            style={{
-              fontSize: "23px",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.4px",
-              lineHeight: "1",
-              margin: "0 0 4px 0",
-            }}
+            className="
+              text-[25px]
+              font-bold
+              uppercase
+              tracking-wide
+              leading-none
+            "
           >
             {personalInformation.fullName || ""}
           </h1>
 
           {personalInformation.location && (
-            <p
-              style={{
-                fontSize: "8px",
-                color: "#555",
-                margin: "0 0 4px 0",
-              }}
-            >
+            <p className="mt-1 text-[9px] text-gray-600">
               {personalInformation.location}
             </p>
           )}
 
-          {/* CONTACT */}
+          {/* EMAIL + PHONE */}
 
           <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: "4px 18px",
-              fontSize: "8px",
-              color: "#444",
-              lineHeight: "1.2",
-            }}
+            className="
+              flex
+              flex-wrap
+              justify-center
+              items-center
+              gap-x-4
+              gap-y-1
+              mt-1.5
+              text-[9px]
+              text-gray-700
+            "
           >
             {personalInformation.email && (
               <a
                 href={`mailto:${personalInformation.email}`}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                  color: "#444",
-                  textDecoration: "none",
-                }}
+                className="flex items-center hover:underline"
               >
-                <FaEnvelope size={8} />
+                <FaEnvelope className="mr-1 text-[9px]" />
                 {personalInformation.email}
               </a>
             )}
 
             {personalInformation.phoneNumber && (
-              <span
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                }}
-              >
-                <FaPhone size={8} />
+              <span className="flex items-center">
+                <FaPhone className="mr-1 text-[9px]" />
                 {personalInformation.phoneNumber}
               </span>
             )}
           </div>
 
-          {/* SOCIAL */}
+          {/* SOCIAL LINKS */}
 
           <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: "4px 18px",
-              fontSize: "8px",
-              marginTop: "4px",
-            }}
+            className="
+              flex
+              flex-wrap
+              justify-center
+              items-center
+              gap-x-4
+              gap-y-1
+              mt-1.5
+              text-[9px]
+            "
           >
             {personalInformation.gitHub && (
               <a
                 href={personalInformation.gitHub}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                  color: "#444",
-                  textDecoration: "none",
-                }}
+                className="
+                  flex
+                  items-center
+                  text-gray-700
+                  hover:underline
+                "
               >
-                <FaGithub size={8} />
+                <FaGithub className="mr-1" />
                 GitHub
               </a>
             )}
@@ -418,15 +364,14 @@ const Resume = ({ data }) => {
                 href={personalInformation.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                  color: "#444",
-                  textDecoration: "none",
-                }}
+                className="
+                  flex
+                  items-center
+                  text-gray-700
+                  hover:underline
+                "
               >
-                <FaLinkedin size={8} />
+                <FaLinkedin className="mr-1" />
                 LinkedIn
               </a>
             )}
@@ -436,15 +381,14 @@ const Resume = ({ data }) => {
                 href={personalInformation.portfolio}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                  color: "#444",
-                  textDecoration: "none",
-                }}
+                className="
+                  flex
+                  items-center
+                  text-gray-700
+                  hover:underline
+                "
               >
-                <FaGlobe size={8} />
+                <FaGlobe className="mr-1" />
                 Portfolio
               </a>
             )}
@@ -452,25 +396,21 @@ const Resume = ({ data }) => {
         </header>
 
         {/* =================================================
-            SUMMARY
+            PROFESSIONAL SUMMARY
         ================================================== */}
 
         {data.summary && (
-          <section
-            style={{
-              width: "100%",
-              marginTop: "10px",
-            }}
-          >
-            <h2 style={sectionTitle}>
+          <section className="mt-3">
+            <h2 className={sectionTitle}>
               Professional Summary
             </h2>
 
             <p
-              style={{
-                ...bodyText,
-                textAlign: "left",
-              }}
+              className={`
+                mt-1.5
+                ${bodyText}
+                text-justify
+              `}
             >
               {data.summary}
             </p>
@@ -482,58 +422,37 @@ const Resume = ({ data }) => {
         ================================================== */}
 
         {education.length > 0 && (
-          <section
-            style={{
-              width: "100%",
-              marginTop: "10px",
-            }}
-          >
-            <h2 style={sectionTitle}>Education</h2>
+          <section className="mt-3">
+            <h2 className={sectionTitle}>
+              Education
+            </h2>
 
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px",
-              }}
-            >
+            <div className="mt-1.5 space-y-2">
               {education.map((edu, index) => (
                 <div key={index}>
                   <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      gap: "15px",
-                    }}
+                    className="
+                      flex
+                      justify-between
+                      items-start
+                      gap-3
+                    "
                   >
-                    <div style={{ minWidth: 0 }}>
+                    <div>
                       {edu?.degree && (
-                        <h3 style={subHeading}>
+                        <h3 className={subHeading}>
                           {edu.degree}
                         </h3>
                       )}
 
                       {edu?.university && (
-                        <p
-                          style={{
-                            fontSize: "9px",
-                            fontWeight: 500,
-                            margin: "2px 0 0 0",
-                          }}
-                        >
+                        <p className="text-[10px] font-medium text-gray-800">
                           {edu.university}
                         </p>
                       )}
 
                       {edu?.location && (
-                        <p
-                          style={{
-                            fontSize: "8px",
-                            color: "#555",
-                            margin: "1px 0 0 0",
-                          }}
-                        >
+                        <p className="text-[9px] text-gray-600">
                           {edu.location}
                         </p>
                       )}
@@ -541,11 +460,12 @@ const Resume = ({ data }) => {
 
                     {edu?.graduationYear && (
                       <span
-                        style={{
-                          fontSize: "8px",
-                          whiteSpace: "nowrap",
-                          color: "#444",
-                        }}
+                        className="
+                          text-[9px]
+                          font-medium
+                          text-gray-700
+                          whitespace-nowrap
+                        "
                       >
                         {edu.graduationYear}
                       </span>
@@ -562,23 +482,19 @@ const Resume = ({ data }) => {
         ================================================== */}
 
         {skills.length > 0 && (
-          <section
-            style={{
-              width: "100%",
-              marginTop: "10px",
-            }}
-          >
-            <h2 style={sectionTitle}>
+          <section className="mt-3">
+            <h2 className={sectionTitle}>
               Technical Skills
             </h2>
 
             <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                columnGap: "45px",
-                rowGap: "1px",
-              }}
+              className="
+                mt-1.5
+                grid
+                grid-cols-2
+                gap-x-8
+                gap-y-0.5
+              "
             >
               {skills.map((skill, index) => {
                 const title =
@@ -594,33 +510,24 @@ const Resume = ({ data }) => {
                 return (
                   <div
                     key={index}
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      fontSize: "9px",
-                      lineHeight: "1.55",
-                    }}
+                    className="
+                      flex
+                      items-start
+                      text-[10px]
+                      leading-5
+                    "
                   >
-                    <span
-                      style={{
-                        marginRight: "5px",
-                        fontWeight: 700,
-                      }}
-                    >
+                    <span className="mr-1 font-bold">
                       •
                     </span>
 
                     <span>
-                      <span style={{ fontWeight: 600 }}>
+                      <span className="font-medium">
                         {title}
                       </span>
 
                       {level && (
-                        <span
-                          style={{
-                            color: "#666",
-                          }}
-                        >
+                        <span className="text-gray-600">
                           {" "}
                           ({level})
                         </span>
@@ -638,51 +545,37 @@ const Resume = ({ data }) => {
         ================================================== */}
 
         {experience.length > 0 && (
-          <section
-            style={{
-              width: "100%",
-              marginTop: "10px",
-            }}
-          >
-            <h2 style={sectionTitle}>Experience</h2>
+          <section className="mt-3">
+            <h2 className={sectionTitle}>
+              Experience
+            </h2>
 
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px",
-              }}
-            >
+            <div className="mt-1.5 space-y-2">
               {experience.map((exp, index) => (
                 <div key={index}>
                   <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      gap: "15px",
-                    }}
+                    className="
+                      flex
+                      justify-between
+                      items-start
+                      gap-3
+                    "
                   >
-                    <div style={{ minWidth: 0 }}>
+                    <div>
                       {exp?.jobTitle && (
-                        <h3 style={subHeading}>
+                        <h3 className={subHeading}>
                           {exp.jobTitle}
                         </h3>
                       )}
 
                       {(exp?.company || exp?.location) && (
-                        <p
-                          style={{
-                            fontSize: "9px",
-                            fontWeight: 500,
-                            color: "#444",
-                            margin: "2px 0 0 0",
-                          }}
-                        >
+                        <p className="text-[10px] font-medium text-gray-700">
                           {exp?.company || ""}
+
                           {exp?.company && exp?.location
                             ? " | "
                             : ""}
+
                           {exp?.location || ""}
                         </p>
                       )}
@@ -690,11 +583,11 @@ const Resume = ({ data }) => {
 
                     {exp?.duration && (
                       <span
-                        style={{
-                          fontSize: "8px",
-                          color: "#555",
-                          whiteSpace: "nowrap",
-                        }}
+                        className="
+                          text-[9px]
+                          text-gray-600
+                          whitespace-nowrap
+                        "
                       >
                         {exp.duration}
                       </span>
@@ -702,13 +595,8 @@ const Resume = ({ data }) => {
                   </div>
 
                   {exp?.responsibility && (
-                    <p
-                      style={{
-                        ...bodyText,
-                        marginTop: "2px",
-                      }}
-                    >
-                      • {exp.responsibility}
+                    <p className="mt-0.5 text-[10px] leading-[1.4]">
+                      {exp.responsibility}
                     </p>
                   )}
                 </div>
@@ -722,54 +610,32 @@ const Resume = ({ data }) => {
         ================================================== */}
 
         {projects.length > 0 && (
-          <section
-            style={{
-              width: "100%",
-              marginTop: "10px",
-            }}
-          >
-            <h2 style={sectionTitle}>Projects</h2>
+          <section className="mt-3">
+            <h2 className={sectionTitle}>
+              Projects
+            </h2>
 
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px",
-              }}
-            >
+            <div className="mt-1.5 space-y-2">
               {projects.map((project, index) => (
                 <div key={index}>
                   {project?.title && (
-                    <h3 style={subHeading}>
+                    <h3 className={subHeading}>
                       {project.title}
                     </h3>
                   )}
 
                   {project?.description && (
-                    <p
-                      style={{
-                        ...bodyText,
-                        marginTop: "2px",
-                      }}
-                    >
+                    <p className="mt-0.5 text-[10px] leading-[1.4]">
                       {project.description}
                     </p>
                   )}
 
-                  {Array.isArray(
-                    project?.technologiesUsed
-                  ) &&
+                  {Array.isArray(project?.technologiesUsed) &&
                     project.technologiesUsed.length > 0 && (
-                      <p
-                        style={{
-                          fontSize: "8px",
-                          color: "#555",
-                          margin: "2px 0 0 0",
-                        }}
-                      >
-                        <strong>
+                      <p className="mt-0.5 text-[9px] text-gray-700">
+                        <span className="font-semibold">
                           Technologies:
-                        </strong>{" "}
+                        </span>{" "}
                         {project.technologiesUsed.join(", ")}
                       </p>
                     )}
@@ -779,17 +645,16 @@ const Resume = ({ data }) => {
                       href={project.githubLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "4px",
-                        color: "#444",
-                        textDecoration: "none",
-                        fontSize: "8px",
-                        marginTop: "2px",
-                      }}
+                      className="
+                        text-gray-700
+                        hover:underline
+                        text-[9px]
+                        inline-flex
+                        items-center
+                        mt-0.5
+                      "
                     >
-                      <FaGithub size={8} />
+                      <FaGithub className="mr-1" />
                       GitHub Repository
                     </a>
                   )}
@@ -804,46 +669,28 @@ const Resume = ({ data }) => {
         ================================================== */}
 
         {certifications.length > 0 && (
-          <section
-            style={{
-              width: "100%",
-              marginTop: "10px",
-            }}
-          >
-            <h2 style={sectionTitle}>
+          <section className="mt-3">
+            <h2 className={sectionTitle}>
               Certifications
             </h2>
 
-            <div>
+            <div className="mt-1.5 space-y-1">
               {certifications.map((cert, index) => {
-                const title =
-                  getCertificationTitle(cert);
-
-                const issuer =
-                  getCertificationIssuer(cert);
-
-                const year =
-                  getCertificationYear(cert);
+                const title = getCertificationTitle(cert);
+                const issuer = getCertificationIssuer(cert);
+                const year = getCertificationYear(cert);
 
                 return (
                   <div
                     key={index}
-                    style={{
-                      fontSize: "9px",
-                      lineHeight: "1.5",
-                    }}
+                    className="text-[10px] leading-5"
                   >
-                    <span
-                      style={{
-                        fontWeight: 700,
-                        marginRight: "5px",
-                      }}
-                    >
+                    <span className="mr-1 font-bold">
                       •
                     </span>
 
                     {title && (
-                      <span style={{ fontWeight: 600 }}>
+                      <span className="font-semibold">
                         {title}
                       </span>
                     )}
@@ -851,14 +698,14 @@ const Resume = ({ data }) => {
                     {issuer && (
                       <>
                         {title ? " - " : ""}
-                        <span style={{ color: "#555" }}>
+                        <span className="text-gray-700">
                           {issuer}
                         </span>
                       </>
                     )}
 
                     {year && (
-                      <span style={{ color: "#666" }}>
+                      <span className="text-gray-600">
                         {" "}
                         ({year})
                       </span>
@@ -875,31 +722,18 @@ const Resume = ({ data }) => {
         ================================================== */}
 
         {achievements.length > 0 && (
-          <section
-            style={{
-              width: "100%",
-              marginTop: "10px",
-            }}
-          >
-            <h2 style={sectionTitle}>
+          <section className="mt-3">
+            <h2 className={sectionTitle}>
               Achievements
             </h2>
 
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "4px",
-              }}
-            >
+            <div className="mt-1.5 space-y-1.5">
               {achievements.map((achievement, index) => {
                 const title =
                   getAchievementTitle(achievement);
 
                 const description =
-                  getAchievementDescription(
-                    achievement
-                  );
+                  getAchievementDescription(achievement);
 
                 const year =
                   getAchievementYear(achievement);
@@ -907,28 +741,23 @@ const Resume = ({ data }) => {
                 return (
                   <div key={index}>
                     <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        gap: "15px",
-                      }}
+                      className="
+                        flex
+                        justify-between
+                        items-start
+                        gap-3
+                      "
                     >
-                      <div style={{ flex: 1 }}>
+                      <div className="flex-1">
                         {title && (
                           <p
-                            style={{
-                              fontSize: "9px",
-                              fontWeight: 600,
-                              lineHeight: "1.35",
-                              margin: 0,
-                            }}
+                            className="
+                              text-[10px]
+                              font-semibold
+                              leading-[1.4]
+                            "
                           >
-                            <span
-                              style={{
-                                marginRight: "5px",
-                              }}
-                            >
+                            <span className="mr-1">
                               •
                             </span>
 
@@ -938,12 +767,13 @@ const Resume = ({ data }) => {
 
                         {description && (
                           <p
-                            style={{
-                              fontSize: "8px",
-                              color: "#555",
-                              lineHeight: "1.35",
-                              margin: "1px 0 0 13px",
-                            }}
+                            className="
+                              ml-3
+                              mt-0.5
+                              text-[9px]
+                              text-gray-700
+                              leading-[1.4]
+                            "
                           >
                             {description}
                           </p>
@@ -952,11 +782,11 @@ const Resume = ({ data }) => {
 
                       {year && (
                         <span
-                          style={{
-                            fontSize: "8px",
-                            color: "#555",
-                            whiteSpace: "nowrap",
-                          }}
+                          className="
+                            text-[9px]
+                            text-gray-600
+                            whitespace-nowrap
+                          "
                         >
                           {year}
                         </span>
@@ -974,27 +804,28 @@ const Resume = ({ data }) => {
         ================================================== */}
 
         {languages.length > 0 && (
-          <section
-            style={{
-              width: "100%",
-              marginTop: "10px",
-            }}
-          >
-            <h2 style={sectionTitle}>Languages</h2>
+          <section className="mt-3">
+            <h2 className={sectionTitle}>
+              Languages
+            </h2>
 
             <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "4px 20px",
-                fontSize: "9px",
-              }}
+              className="
+                mt-1.5
+                flex
+                flex-wrap
+                gap-x-5
+                gap-y-1
+                text-[10px]
+              "
             >
               {languages.map((language, index) => {
                 const name = getLanguageName(language);
 
                 return (
-                  <span key={index}>{name}</span>
+                  <span key={index}>
+                    {name}
+                  </span>
                 );
               })}
             </div>
@@ -1006,27 +837,28 @@ const Resume = ({ data }) => {
         ================================================== */}
 
         {interests.length > 0 && (
-          <section
-            style={{
-              width: "100%",
-              marginTop: "10px",
-            }}
-          >
-            <h2 style={sectionTitle}>Interests</h2>
+          <section className="mt-3">
+            <h2 className={sectionTitle}>
+              Interests
+            </h2>
 
             <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "4px 20px",
-                fontSize: "9px",
-              }}
+              className="
+                mt-1.5
+                flex
+                flex-wrap
+                gap-x-5
+                gap-y-1
+                text-[10px]
+              "
             >
               {interests.map((interest, index) => {
                 const name = getInterestName(interest);
 
                 return (
-                  <span key={index}>{name}</span>
+                  <span key={index}>
+                    {name}
+                  </span>
                 );
               })}
             </div>
@@ -1038,30 +870,20 @@ const Resume = ({ data }) => {
           DOWNLOAD BUTTON
       ====================================================== */}
 
-      <div
-        style={{
-          marginTop: "20px",
-          marginBottom: "20px",
-        }}
-      >
+      <div className="flex justify-center mt-4 mb-8">
         <button
           type="button"
           onClick={handleDownloadPdf}
-          style={{
-            backgroundColor: "#4f46e5",
-            color: "#ffffff",
-            border: "none",
-            borderRadius: "6px",
-            padding: "10px 28px",
-            fontSize: "14px",
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
+          className="
+            btn
+            btn-primary
+            px-8
+          "
         >
           Download PDF
         </button>
       </div>
-    </div>
+    </>
   );
 };
 
