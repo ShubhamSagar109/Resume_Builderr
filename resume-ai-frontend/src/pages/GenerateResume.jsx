@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import Navbar from "../components/Navbar";
+
+import { toPng } from "html-to-image";
+import jsPDF from "jspdf";
 
 import {
   FaBrain,
@@ -17,12 +20,18 @@ import {
   FaHeart,
   FaFileAlt,
   FaCode,
+  FaDownload,
 } from "react-icons/fa";
 
 import { useForm, useFieldArray } from "react-hook-form";
 
 import { generateResume } from "../api/ResumeService";
 import Resume from "../components/Resume";
+
+
+// =========================================================
+// DEFAULT VALUES
+// =========================================================
 
 const defaultValues = {
   personalInformation: {
@@ -102,14 +111,38 @@ const defaultValues = {
   ],
 };
 
+
+// =========================================================
+// COMPONENT
+// =========================================================
+
 const GenerateResume = () => {
   const [loading, setLoading] = useState(false);
   const [generatedResume, setGeneratedResume] = useState(null);
   const [userDescription, setUserDescription] = useState("");
 
-  const { register, control, handleSubmit, reset } = useForm({
+  // PDF DOWNLOAD
+  const resumeRef = useRef(null);
+  const [downloading, setDownloading] = useState(false);
+
+
+  // =========================================================
+  // REACT HOOK FORM
+  // =========================================================
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    reset,
+  } = useForm({
     defaultValues,
   });
+
+
+  // =========================================================
+  // FIELD ARRAYS
+  // =========================================================
 
   const {
     fields: skillFields,
@@ -120,6 +153,7 @@ const GenerateResume = () => {
     name: "skills",
   });
 
+
   const {
     fields: experienceFields,
     append: appendExperience,
@@ -128,6 +162,7 @@ const GenerateResume = () => {
     control,
     name: "experience",
   });
+
 
   const {
     fields: educationFields,
@@ -138,6 +173,7 @@ const GenerateResume = () => {
     name: "education",
   });
 
+
   const {
     fields: certificationFields,
     append: appendCertification,
@@ -146,6 +182,7 @@ const GenerateResume = () => {
     control,
     name: "certifications",
   });
+
 
   const {
     fields: projectFields,
@@ -156,6 +193,7 @@ const GenerateResume = () => {
     name: "projects",
   });
 
+
   const {
     fields: achievementFields,
     append: appendAchievement,
@@ -164,6 +202,7 @@ const GenerateResume = () => {
     control,
     name: "achievements",
   });
+
 
   const {
     fields: languageFields,
@@ -174,6 +213,7 @@ const GenerateResume = () => {
     name: "languages",
   });
 
+
   const {
     fields: interestFields,
     append: appendInterest,
@@ -182,6 +222,7 @@ const GenerateResume = () => {
     control,
     name: "interests",
   });
+
 
   // =========================================================
   // FORMAT AI RESPONSE
@@ -309,6 +350,7 @@ const GenerateResume = () => {
     };
   };
 
+
   // =========================================================
   // GENERATE RESUME
   // =========================================================
@@ -385,17 +427,21 @@ const GenerateResume = () => {
     }
   };
 
+
   // =========================================================
   // CLEAR
   // =========================================================
 
   const handleClear = () => {
     reset(defaultValues);
+
     setGeneratedResume(null);
+
     setUserDescription("");
 
     toast.success("Form cleared.");
   };
+
 
   // =========================================================
   // MANUAL SUBMIT
@@ -409,8 +455,94 @@ const GenerateResume = () => {
     toast.success("Resume preview updated.");
   };
 
+
   // =========================================================
-  // IMPORTANT UI CLASSES
+  // DOWNLOAD RESUME AS PDF
+  // =========================================================
+
+  const handleDownloadPDF = async () => {
+    if (!resumeRef.current) {
+      toast.error("Resume preview is not available.");
+      return;
+    }
+
+    try {
+      setDownloading(true);
+
+      toast.loading("Preparing your resume...", {
+        id: "resume-download",
+      });
+
+      const element = resumeRef.current;
+
+      // Convert resume into high-quality PNG
+      const dataUrl = await toPng(element, {
+        quality: 1,
+        pixelRatio: 2,
+        backgroundColor: "#ffffff",
+        cacheBust: true,
+      });
+
+      // Create A4 PDF
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pageWidth = 210;
+      const pageHeight = 297;
+
+      pdf.addImage(
+        dataUrl,
+        "PNG",
+        0,
+        0,
+        pageWidth,
+        pageHeight
+      );
+
+      // Get candidate name
+      const fullName =
+        generatedResume?.personalInformation?.fullName ||
+        "Resume";
+
+      // Make filename safe
+      const safeFileName = fullName
+        .trim()
+        .replace(/[^a-zA-Z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "");
+
+      pdf.save(
+        `${safeFileName || "Resume"}_Resume.pdf`
+      );
+
+      toast.success(
+        "Resume downloaded successfully!",
+        {
+          id: "resume-download",
+        }
+      );
+    } catch (error) {
+      console.error(
+        "PDF download error:",
+        error
+      );
+
+      toast.error(
+        "Failed to download resume.",
+        {
+          id: "resume-download",
+        }
+      );
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+
+  // =========================================================
+  // UI CLASSES
   // =========================================================
 
   const inputClass =
@@ -427,6 +559,7 @@ const GenerateResume = () => {
     "focus:!ring-[#D85B9B]/20 " +
     "transition-all duration-200";
 
+
   const textareaClass =
     "textarea w-full rounded-xl " +
     "!bg-[#171020] " +
@@ -442,11 +575,13 @@ const GenerateResume = () => {
     "focus:!ring-[#D85B9B]/20 " +
     "transition-all duration-200";
 
+
   const cardClass =
     "bg-gradient-to-br from-[#1a1225] via-[#24182B] to-[#1a0f1f] " +
     "border border-[#D85B9B]/20 rounded-[26px] " +
     "shadow-[0_20px_60px_rgba(0,0,0,0.40)] " +
     "overflow-hidden backdrop-blur-sm";
+
 
   const addButtonClass =
     "btn btn-sm h-10 px-4 rounded-xl " +
@@ -456,6 +591,7 @@ const GenerateResume = () => {
     "shadow-[0_4px_15px_rgba(216,91,155,0.3)] " +
     "transition-all duration-300";
 
+
   const removeButtonClass =
     "btn h-11 rounded-xl " +
     "bg-[#1a1225] hover:bg-[#2B1721] " +
@@ -464,53 +600,84 @@ const GenerateResume = () => {
     "hover:border-[#D85B9B]/60 " +
     "transition-all duration-300";
 
+
   // =========================================================
   // UI
   // =========================================================
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0618] via-[#1a0f1f] to-[#0d0813]">
+
       <Navbar />
 
+
       <main className="px-4 sm:px-6 lg:px-8 py-10">
+
         <div className="relative z-10 max-w-7xl mx-auto">
 
-          {/* PAGE TITLE */}
+
+          {/* =================================================
+              PAGE TITLE
+          ================================================= */}
 
           <div className="text-center mb-12">
+
             <div className="flex justify-center items-center gap-3 mb-3">
+
               <div className="relative">
+
                 <FaBrain className="text-[#F4D6A4] text-5xl drop-shadow-[0_0_30px_rgba(216,91,155,0.6)] animate-pulse" />
 
                 <div className="absolute -inset-1 bg-[#D85B9B]/20 blur-xl rounded-full"></div>
+
               </div>
 
+
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-[#F4D6A4] via-[#E8B4D8] to-[#D85B9B] bg-clip-text text-transparent">
+
                 AI Resume Builder
+
               </h1>
+
             </div>
 
+
             <p className="mt-3 text-[#F3EAF4]/70 text-base sm:text-lg max-w-2xl mx-auto leading-7">
+
               Craft your professional IT resume with the
               power of artificial intelligence
+
             </p>
+
           </div>
 
-          {/* AI DESCRIPTION */}
+
+          {/* =================================================
+              AI DESCRIPTION
+          ================================================= */}
 
           <div className={`${cardClass} mb-8`}>
+
             <div className="p-6 sm:p-8 lg:p-9 border-t-4 border-[#D85B9B]">
 
+
               <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                 <FaBrain className="text-[#D85B9B] animate-pulse" />
+
                 Describe Yourself
+
               </h2>
 
+
               <p className="text-[#C4B5C6] leading-7 mt-1">
+
                 Enter your skills, education, projects,
                 experience and career goals. AI will generate
                 your resume.
+
               </p>
+
 
               <textarea
                 value={userDescription}
@@ -521,7 +688,11 @@ const GenerateResume = () => {
                 className={`${textareaClass} !h-56 resize-y !rounded-2xl !p-5 mt-5`}
               />
 
+
               <div className="flex flex-wrap gap-3 mt-4">
+
+
+                {/* GENERATE */}
 
                 <button
                   type="button"
@@ -529,6 +700,7 @@ const GenerateResume = () => {
                   disabled={loading}
                   className="btn h-12 px-6 rounded-xl bg-gradient-to-r from-[#D85B9B] to-[#BE477F] hover:from-[#BE477F] hover:to-[#A33D6E] text-white border-0 shadow-[0_8px_25px_rgba(216,91,155,0.3)] hover:shadow-[0_8px_30px_rgba(216,91,155,0.5)] transition-all duration-300"
                 >
+
                   {loading ? (
                     <>
                       <span className="loading loading-spinner loading-sm"></span>
@@ -540,7 +712,11 @@ const GenerateResume = () => {
                       Generate Resume
                     </>
                   )}
+
                 </button>
+
+
+                {/* CLEAR */}
 
                 <button
                   type="button"
@@ -548,86 +724,127 @@ const GenerateResume = () => {
                   disabled={loading}
                   className="btn h-12 px-6 rounded-xl bg-[#1a1225] border border-[#D85B9B]/30 text-[#F4D6A4] hover:bg-[#2B1721] hover:border-[#D85B9B]/60 transition-all duration-300"
                 >
+
                   <FaTrash />
+
                   Clear
+
                 </button>
 
               </div>
+
             </div>
+
           </div>
 
-          {/* FORM */}
+
+          {/* =================================================
+              FORM
+          ================================================= */}
 
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-8"
           >
 
-            {/* PERSONAL INFORMATION */}
+
+            {/* =================================================
+                PERSONAL INFORMATION
+            ================================================= */}
 
             <div className={cardClass}>
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2 mb-5">
+
                   <FaUser className="text-[#D85B9B]" />
 
                   <span className="w-2 h-7 rounded-full bg-gradient-to-b from-[#D85B9B] to-[#F4D6A4] shadow-sm inline-block"></span>
 
                   Personal Information
+
                 </h2>
+
 
                 <div className="grid md:grid-cols-2 gap-4">
 
                   <input
-                    {...register("personalInformation.fullName")}
+                    {...register(
+                      "personalInformation.fullName"
+                    )}
                     placeholder="Full Name"
                     className={inputClass}
                   />
 
+
                   <input
-                    {...register("personalInformation.email")}
+                    {...register(
+                      "personalInformation.email"
+                    )}
                     placeholder="Email"
                     type="email"
                     className={inputClass}
                   />
 
+
                   <input
-                    {...register("personalInformation.phoneNumber")}
+                    {...register(
+                      "personalInformation.phoneNumber"
+                    )}
                     placeholder="Phone Number"
                     className={inputClass}
                   />
 
+
                   <input
-                    {...register("personalInformation.location")}
+                    {...register(
+                      "personalInformation.location"
+                    )}
                     placeholder="Location"
                     className={inputClass}
                   />
 
+
                   <input
-                    {...register("personalInformation.linkedin")}
+                    {...register(
+                      "personalInformation.linkedin"
+                    )}
                     placeholder="LinkedIn URL"
                     className={inputClass}
                   />
 
+
                   <input
-                    {...register("personalInformation.gitHub")}
+                    {...register(
+                      "personalInformation.gitHub"
+                    )}
                     placeholder="GitHub URL"
                     className={inputClass}
                   />
 
+
                   <input
-                    {...register("personalInformation.portfolio")}
+                    {...register(
+                      "personalInformation.portfolio"
+                    )}
                     placeholder="Portfolio URL"
                     className={inputClass}
                   />
 
                 </div>
+
               </div>
+
             </div>
 
-            {/* SUMMARY */}
+
+            {/* =================================================
+                SUMMARY
+            ================================================= */}
 
             <div className={cardClass}>
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2 mb-5">
@@ -637,7 +854,9 @@ const GenerateResume = () => {
                   <span className="w-2 h-7 rounded-full bg-gradient-to-b from-[#D85B9B] to-[#F4D6A4] shadow-sm inline-block"></span>
 
                   Professional Summary
+
                 </h2>
+
 
                 <textarea
                   {...register("summary")}
@@ -646,19 +865,28 @@ const GenerateResume = () => {
                 />
 
               </div>
+
             </div>
 
-            {/* SKILLS */}
+
+            {/* =================================================
+                SKILLS
+            ================================================= */}
 
             <div className={cardClass}>
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaCode className="text-[#D85B9B]" />
+
                     Skills
+
                   </h2>
+
 
                   <button
                     type="button"
@@ -670,56 +898,80 @@ const GenerateResume = () => {
                       })
                     }
                   >
+
                     <FaPlusCircle />
+
                     Add Skill
+
                   </button>
 
                 </div>
 
+
                 {skillFields.map((field, index) => (
+
                   <div
                     key={field.id}
                     className="grid md:grid-cols-3 gap-3 mt-4"
                   >
 
                     <input
-                      {...register(`skills.${index}.title`)}
+                      {...register(
+                        `skills.${index}.title`
+                      )}
                       placeholder="Skill"
                       className={inputClass}
                     />
 
+
                     <input
-                      {...register(`skills.${index}.level`)}
+                      {...register(
+                        `skills.${index}.level`
+                      )}
                       placeholder="Level"
                       className={inputClass}
                     />
+
 
                     <button
                       type="button"
                       onClick={() => removeSkill(index)}
                       className={removeButtonClass}
                     >
+
                       <FaTrash />
+
                       Remove
+
                     </button>
 
                   </div>
+
                 ))}
 
               </div>
+
             </div>
 
-            {/* EXPERIENCE */}
+
+            {/* =================================================
+                EXPERIENCE
+            ================================================= */}
 
             <div className={cardClass}>
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaBriefcase className="text-[#D85B9B]" />
+
                     Experience
+
                   </h2>
+
 
                   <button
                     type="button"
@@ -734,45 +986,62 @@ const GenerateResume = () => {
                       })
                     }
                   >
+
                     <FaPlusCircle />
+
                     Add Experience
+
                   </button>
 
                 </div>
 
+
                 {experienceFields.map((field, index) => (
+
                   <div
                     key={field.id}
                     className="border border-[#D85B9B]/20 bg-[#0d0813]/30 backdrop-blur-sm rounded-2xl p-5 mt-5 space-y-3 shadow-sm"
                   >
 
                     <input
-                      {...register(`experience.${index}.jobTitle`)}
+                      {...register(
+                        `experience.${index}.jobTitle`
+                      )}
                       placeholder="Job Title"
                       className={inputClass}
                     />
 
+
                     <div className="grid md:grid-cols-2 gap-3">
 
                       <input
-                        {...register(`experience.${index}.company`)}
+                        {...register(
+                          `experience.${index}.company`
+                        )}
                         placeholder="Company"
                         className={inputClass}
                       />
 
+
                       <input
-                        {...register(`experience.${index}.location`)}
+                        {...register(
+                          `experience.${index}.location`
+                        )}
                         placeholder="Location"
                         className={inputClass}
                       />
 
+
                       <input
-                        {...register(`experience.${index}.duration`)}
+                        {...register(
+                          `experience.${index}.duration`
+                        )}
                         placeholder="Duration"
                         className={inputClass}
                       />
 
                     </div>
+
 
                     <textarea
                       {...register(
@@ -782,32 +1051,48 @@ const GenerateResume = () => {
                       className={textareaClass}
                     />
 
+
                     <button
                       type="button"
-                      onClick={() => removeExperience(index)}
+                      onClick={() =>
+                        removeExperience(index)
+                      }
                       className="btn btn-sm h-10 rounded-xl bg-[#1a1225] hover:bg-[#2B1721] text-[#F4D6A4] border border-[#D85B9B]/30 hover:border-[#D85B9B]/60 transition-all duration-300"
                     >
+
                       <FaTrash />
+
                       Remove Experience
+
                     </button>
 
                   </div>
+
                 ))}
 
               </div>
+
             </div>
 
-            {/* EDUCATION */}
+
+            {/* =================================================
+                EDUCATION
+            ================================================= */}
 
             <div className={cardClass}>
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaGraduationCap className="text-[#D85B9B]" />
+
                     Education
+
                   </h2>
+
 
                   <button
                     type="button"
@@ -821,37 +1106,51 @@ const GenerateResume = () => {
                       })
                     }
                   >
+
                     <FaPlusCircle />
+
                     Add Education
+
                   </button>
 
                 </div>
 
+
                 {educationFields.map((field, index) => (
+
                   <div
                     key={field.id}
                     className="border border-[#D85B9B]/20 bg-[#0d0813]/30 backdrop-blur-sm rounded-2xl p-5 mt-5 space-y-3 shadow-sm"
                   >
 
                     <input
-                      {...register(`education.${index}.degree`)}
+                      {...register(
+                        `education.${index}.degree`
+                      )}
                       placeholder="Degree"
                       className={inputClass}
                     />
 
+
                     <div className="grid md:grid-cols-3 gap-3">
 
                       <input
-                        {...register(`education.${index}.university`)}
+                        {...register(
+                          `education.${index}.university`
+                        )}
                         placeholder="University"
                         className={inputClass}
                       />
 
+
                       <input
-                        {...register(`education.${index}.location`)}
+                        {...register(
+                          `education.${index}.location`
+                        )}
                         placeholder="Location"
                         className={inputClass}
                       />
+
 
                       <input
                         {...register(
@@ -863,32 +1162,48 @@ const GenerateResume = () => {
 
                     </div>
 
+
                     <button
                       type="button"
-                      onClick={() => removeEducation(index)}
+                      onClick={() =>
+                        removeEducation(index)
+                      }
                       className="btn btn-sm h-10 rounded-xl bg-[#1a1225] hover:bg-[#2B1721] text-[#F4D6A4] border border-[#D85B9B]/30 hover:border-[#D85B9B]/60 transition-all duration-300"
                     >
+
                       <FaTrash />
+
                       Remove Education
+
                     </button>
 
                   </div>
+
                 ))}
 
               </div>
+
             </div>
 
-            {/* CERTIFICATIONS */}
+
+            {/* =================================================
+                CERTIFICATIONS
+            ================================================= */}
 
             <div className={cardClass}>
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaCertificate className="text-[#D85B9B]" />
+
                     Certifications
+
                   </h2>
+
 
                   <button
                     type="button"
@@ -901,13 +1216,18 @@ const GenerateResume = () => {
                       })
                     }
                   >
+
                     <FaPlusCircle />
+
                     Add Certification
+
                   </button>
 
                 </div>
 
+
                 {certificationFields.map((field, index) => (
+
                   <div
                     key={field.id}
                     className="grid md:grid-cols-4 gap-3 mt-4"
@@ -921,6 +1241,7 @@ const GenerateResume = () => {
                       className={inputClass}
                     />
 
+
                     <input
                       {...register(
                         `certifications.${index}.issuingOrganization`
@@ -928,6 +1249,7 @@ const GenerateResume = () => {
                       placeholder="Issuing Organization"
                       className={inputClass}
                     />
+
 
                     <input
                       {...register(
@@ -937,6 +1259,7 @@ const GenerateResume = () => {
                       className={inputClass}
                     />
 
+
                     <button
                       type="button"
                       onClick={() =>
@@ -944,26 +1267,38 @@ const GenerateResume = () => {
                       }
                       className={removeButtonClass}
                     >
+
                       <FaTrash />
+
                     </button>
 
                   </div>
+
                 ))}
 
               </div>
+
             </div>
 
-            {/* PROJECTS */}
+
+            {/* =================================================
+                PROJECTS
+            ================================================= */}
 
             <div className={cardClass}>
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaProjectDiagram className="text-[#D85B9B]" />
+
                     Projects
+
                   </h2>
+
 
                   <button
                     type="button"
@@ -977,23 +1312,31 @@ const GenerateResume = () => {
                       })
                     }
                   >
+
                     <FaPlusCircle />
+
                     Add Project
+
                   </button>
 
                 </div>
 
+
                 {projectFields.map((field, index) => (
+
                   <div
                     key={field.id}
                     className="border border-[#D85B9B]/20 bg-[#0d0813]/30 backdrop-blur-sm rounded-2xl p-5 mt-5 space-y-3 shadow-sm"
                   >
 
                     <input
-                      {...register(`projects.${index}.title`)}
+                      {...register(
+                        `projects.${index}.title`
+                      )}
                       placeholder="Project Title"
                       className={inputClass}
                     />
+
 
                     <textarea
                       {...register(
@@ -1003,6 +1346,7 @@ const GenerateResume = () => {
                       className={textareaClass}
                     />
 
+
                     <input
                       {...register(
                         `projects.${index}.technologiesUsed`
@@ -1010,6 +1354,7 @@ const GenerateResume = () => {
                       placeholder="Technologies (Java, Spring Boot, React...)"
                       className={inputClass}
                     />
+
 
                     <input
                       {...register(
@@ -1019,32 +1364,46 @@ const GenerateResume = () => {
                       className={inputClass}
                     />
 
+
                     <button
                       type="button"
                       onClick={() => removeProject(index)}
                       className="btn btn-sm h-10 rounded-xl bg-[#1a1225] hover:bg-[#2B1721] text-[#F4D6A4] border border-[#D85B9B]/30 hover:border-[#D85B9B]/60 transition-all duration-300"
                     >
+
                       <FaTrash />
+
                       Remove Project
+
                     </button>
 
                   </div>
+
                 ))}
 
               </div>
+
             </div>
 
-            {/* ACHIEVEMENTS */}
+
+            {/* =================================================
+                ACHIEVEMENTS
+            ================================================= */}
 
             <div className={cardClass}>
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaTrophy className="text-[#D85B9B]" />
+
                     Achievements
+
                   </h2>
+
 
                   <button
                     type="button"
@@ -1057,13 +1416,18 @@ const GenerateResume = () => {
                       })
                     }
                   >
+
                     <FaPlusCircle />
+
                     Add Achievement
+
                   </button>
 
                 </div>
 
+
                 {achievementFields.map((field, index) => (
+
                   <div
                     key={field.id}
                     className="border border-[#D85B9B]/20 bg-[#0d0813]/30 backdrop-blur-sm rounded-2xl p-5 mt-5 space-y-3 shadow-sm"
@@ -1077,6 +1441,7 @@ const GenerateResume = () => {
                       className={inputClass}
                     />
 
+
                     <input
                       {...register(
                         `achievements.${index}.year`
@@ -1084,6 +1449,7 @@ const GenerateResume = () => {
                       placeholder="Year"
                       className={inputClass}
                     />
+
 
                     <textarea
                       {...register(
@@ -1093,6 +1459,7 @@ const GenerateResume = () => {
                       className={textareaClass}
                     />
 
+
                     <button
                       type="button"
                       onClick={() =>
@@ -1100,27 +1467,40 @@ const GenerateResume = () => {
                       }
                       className="btn btn-sm h-10 rounded-xl bg-[#1a1225] hover:bg-[#2B1721] text-[#F4D6A4] border border-[#D85B9B]/30 hover:border-[#D85B9B]/60 transition-all duration-300"
                     >
+
                       <FaTrash />
+
                       Remove Achievement
+
                     </button>
 
                   </div>
+
                 ))}
 
               </div>
+
             </div>
 
-            {/* LANGUAGES */}
+
+            {/* =================================================
+                LANGUAGES
+            ================================================= */}
 
             <div className={cardClass}>
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaLanguage className="text-[#D85B9B]" />
+
                     Languages
+
                   </h2>
+
 
                   <button
                     type="button"
@@ -1132,49 +1512,71 @@ const GenerateResume = () => {
                       })
                     }
                   >
+
                     <FaPlusCircle />
+
                     Add Language
+
                   </button>
 
                 </div>
 
+
                 {languageFields.map((field, index) => (
+
                   <div
                     key={field.id}
                     className="flex gap-3 mt-4"
                   >
 
                     <input
-                      {...register(`languages.${index}.name`)}
+                      {...register(
+                        `languages.${index}.name`
+                      )}
                       placeholder="Language"
                       className={`${inputClass} flex-1`}
                     />
 
+
                     <button
                       type="button"
-                      onClick={() => removeLanguage(index)}
+                      onClick={() =>
+                        removeLanguage(index)
+                      }
                       className={removeButtonClass}
                     >
+
                       <FaTrash />
+
                     </button>
 
                   </div>
+
                 ))}
 
               </div>
+
             </div>
 
-            {/* INTERESTS */}
+
+            {/* =================================================
+                INTERESTS
+            ================================================= */}
 
             <div className={cardClass}>
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaHeart className="text-[#D85B9B]" />
+
                     Interests
+
                   </h2>
+
 
                   <button
                     type="button"
@@ -1185,23 +1587,31 @@ const GenerateResume = () => {
                       })
                     }
                   >
+
                     <FaPlusCircle />
+
                     Add Interest
+
                   </button>
 
                 </div>
 
+
                 {interestFields.map((field, index) => (
+
                   <div
                     key={field.id}
                     className="flex gap-3 mt-4"
                   >
 
                     <input
-                      {...register(`interests.${index}.name`)}
+                      {...register(
+                        `interests.${index}.name`
+                      )}
                       placeholder="Interest"
                       className={`${inputClass} flex-1`}
                     />
+
 
                     <button
                       type="button"
@@ -1210,16 +1620,23 @@ const GenerateResume = () => {
                       }
                       className={removeButtonClass}
                     >
+
                       <FaTrash />
+
                     </button>
 
                   </div>
+
                 ))}
 
               </div>
+
             </div>
 
-            {/* SAVE / UPDATE */}
+
+            {/* =================================================
+                SAVE / UPDATE
+            ================================================= */}
 
             <div className="flex justify-center pb-12 pt-4">
 
@@ -1227,35 +1644,127 @@ const GenerateResume = () => {
                 type="submit"
                 className="btn h-12 px-8 rounded-xl bg-gradient-to-r from-[#D85B9B] to-[#BE477F] hover:from-[#BE477F] hover:to-[#A33D6E] text-white border-0 shadow-[0_8px_25px_rgba(216,91,155,0.3)] hover:shadow-[0_8px_30px_rgba(216,91,155,0.5)] transition-all duration-300 text-lg font-semibold"
               >
+
                 Save / Update Resume
+
               </button>
 
             </div>
 
           </form>
 
-          {/* RESUME PREVIEW */}
+
+          {/* =================================================
+              RESUME PREVIEW
+          ================================================= */}
 
           {generatedResume && (
+
             <div className="mt-14">
+
+
+              {/* PREVIEW TITLE */}
 
               <div className="divider text-xl font-extrabold text-[#F4D6A4] my-10">
 
                 <span className="bg-gradient-to-r from-[#D85B9B] to-[#F4D6A4] bg-clip-text text-transparent">
+
                   Resume Preview
+
                 </span>
 
               </div>
 
-              <Resume data={generatedResume} />
+
+              {/* =================================================
+                  DOWNLOAD BUTTON
+              ================================================= */}
+
+              <div className="flex justify-center mb-8">
+
+                <button
+                  type="button"
+                  onClick={handleDownloadPDF}
+                  disabled={downloading}
+                  className="
+                    btn
+                    h-12
+                    px-7
+                    rounded-xl
+                    bg-gradient-to-r
+                    from-[#D85B9B]
+                    to-[#BE477F]
+                    hover:from-[#BE477F]
+                    hover:to-[#A33D6E]
+                    text-white
+                    border-0
+                    shadow-[0_8px_25px_rgba(216,91,155,0.3)]
+                    hover:shadow-[0_8px_30px_rgba(216,91,155,0.5)]
+                    transition-all
+                    duration-300
+                    text-base
+                    font-semibold
+                    disabled:opacity-60
+                    disabled:cursor-not-allowed
+                  "
+                >
+
+                  {downloading ? (
+
+                    <>
+
+                      <span className="loading loading-spinner loading-sm"></span>
+
+                      Preparing PDF...
+
+                    </>
+
+                  ) : (
+
+                    <>
+
+                      <FaDownload />
+
+                      Download Resume
+
+                    </>
+
+                  )}
+
+                </button>
+
+              </div>
+
+
+              {/* =================================================
+                  RESUME
+              ================================================= */}
+
+              <div className="flex justify-center overflow-x-auto">
+
+                <div
+                  ref={resumeRef}
+                  className="bg-white"
+                >
+
+                  <Resume data={generatedResume} />
+
+                </div>
+
+              </div>
+
 
             </div>
+
           )}
 
         </div>
+
       </main>
+
     </div>
   );
 };
+
 
 export default GenerateResume;
