@@ -1,6 +1,4 @@
 import React, { useRef } from "react";
-import "daisyui/dist/full.css";
-
 import {
   FaGithub,
   FaLinkedin,
@@ -21,10 +19,16 @@ const Resume = ({ data }) => {
 
   if (!data) {
     return (
-      <div className="text-center mt-10 p-10">
-        <h2 className="text-2xl font-semibold">
-          No Resume Data Found
-        </h2>
+      <div className="flex justify-center items-center mt-10 p-10">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-gray-800">
+            No Resume Data Found
+          </h2>
+
+          <p className="mt-2 text-gray-500">
+            Please generate your resume first.
+          </p>
+        </div>
       </div>
     );
   }
@@ -33,42 +37,196 @@ const Resume = ({ data }) => {
   // SAFE DATA
   // =========================================================
 
-  const personalInformation = data.personalInformation || {};
+  const personalInformation =
+    data?.personalInformation &&
+    typeof data.personalInformation === "object"
+      ? data.personalInformation
+      : {};
 
-  const skills = Array.isArray(data.skills)
-    ? data.skills
-    : [];
+  const skills = Array.isArray(data?.skills) ? data.skills : [];
 
-  const experience = Array.isArray(data.experience)
+  const experience = Array.isArray(data?.experience)
     ? data.experience
     : [];
 
-  const education = Array.isArray(data.education)
+  const education = Array.isArray(data?.education)
     ? data.education
     : [];
 
-  const certifications = Array.isArray(data.certifications)
+  const certifications = Array.isArray(data?.certifications)
     ? data.certifications
     : [];
 
-  const projects = Array.isArray(data.projects)
+  const projects = Array.isArray(data?.projects)
     ? data.projects
     : [];
 
-  const achievements = Array.isArray(data.achievements)
+  const achievements = Array.isArray(data?.achievements)
     ? data.achievements
     : [];
 
-  const languages = Array.isArray(data.languages)
+  const languages = Array.isArray(data?.languages)
     ? data.languages
     : [];
 
-  const interests = Array.isArray(data.interests)
+  const interests = Array.isArray(data?.interests)
     ? data.interests
     : [];
 
   // =========================================================
-  // PDF DOWNLOAD (IMPROVED VERSION)
+  // HELPER FUNCTIONS
+  // =========================================================
+
+  const safeString = (value) => {
+    if (value === null || value === undefined) {
+      return "";
+    }
+
+    return String(value).trim();
+  };
+
+  const getCertificationTitle = (certification) => {
+    if (typeof certification === "string") {
+      return certification;
+    }
+
+    return safeString(
+      certification?.title ||
+        certification?.name ||
+        certification?.certificateName ||
+        certification?.certificationName ||
+        certification?.certificate
+    );
+  };
+
+  const getCertificationIssuer = (certification) => {
+    if (!certification || typeof certification !== "object") {
+      return "";
+    }
+
+    return safeString(
+      certification?.issuingOrganization ||
+        certification?.issuer ||
+        certification?.organization ||
+        certification?.provider ||
+        certification?.platform
+    );
+  };
+
+  const getCertificationYear = (certification) => {
+    if (!certification || typeof certification !== "object") {
+      return "";
+    }
+
+    return safeString(
+      certification?.year ||
+        certification?.date ||
+        certification?.issuedYear ||
+        certification?.completionYear
+    );
+  };
+
+  const getAchievementTitle = (achievement) => {
+    if (typeof achievement === "string") {
+      return achievement;
+    }
+
+    return safeString(
+      achievement?.title ||
+        achievement?.name ||
+        achievement?.achievement ||
+        achievement?.achievementTitle
+    );
+  };
+
+  const getAchievementDescription = (achievement) => {
+    if (!achievement || typeof achievement !== "object") {
+      return "";
+    }
+
+    return safeString(
+      achievement?.extraInformation ||
+        achievement?.description ||
+        achievement?.details ||
+        achievement?.information ||
+        achievement?.achievementDescription
+    );
+  };
+
+  const getAchievementYear = (achievement) => {
+    if (!achievement || typeof achievement !== "object") {
+      return "";
+    }
+
+    return safeString(
+      achievement?.year ||
+        achievement?.date ||
+        achievement?.achievementYear
+    );
+  };
+
+  const getLanguageName = (language) => {
+    if (typeof language === "string") {
+      return language;
+    }
+
+    return safeString(
+      language?.name ||
+        language?.language ||
+        language?.title
+    );
+  };
+
+  const getInterestName = (interest) => {
+    if (typeof interest === "string") {
+      return interest;
+    }
+
+    return safeString(
+      interest?.name ||
+        interest?.interest ||
+        interest?.title
+    );
+  };
+
+  const getSkillTitle = (skill) => {
+    if (typeof skill === "string") {
+      return skill;
+    }
+
+    return safeString(
+      skill?.title ||
+        skill?.name ||
+        skill?.skill
+    );
+  };
+
+  const getSkillLevel = (skill) => {
+    if (!skill || typeof skill !== "object") {
+      return "";
+    }
+
+    return safeString(skill?.level);
+  };
+
+  const getProjectTechnologies = (project) => {
+    if (!project || typeof project !== "object") {
+      return [];
+    }
+
+    if (Array.isArray(project?.technologiesUsed)) {
+      return project.technologiesUsed.filter(Boolean);
+    }
+
+    if (Array.isArray(project?.technologies)) {
+      return project.technologies.filter(Boolean);
+    }
+
+    return [];
+  };
+
+  // =========================================================
+  // PDF DOWNLOAD
   // =========================================================
 
   const handleDownloadPdf = async () => {
@@ -80,10 +238,9 @@ const Resume = ({ data }) => {
     try {
       const element = resumeRef.current;
 
-      // Wait for any pending renders
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Wait for browser rendering
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
-      // Capture the resume as an image
       const dataUrl = await toPng(element, {
         quality: 1,
         pixelRatio: 2,
@@ -91,7 +248,6 @@ const Resume = ({ data }) => {
         cacheBust: true,
       });
 
-      // Create PDF
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -99,63 +255,60 @@ const Resume = ({ data }) => {
         compress: true,
       });
 
-      const pdfWidth = 210; // A4 width in mm
-      const pdfHeight = 297; // A4 height in mm
+      const pageWidth = 210;
+      const pageHeight = 297;
 
-      // Load image to get dimensions
-      const img = new Image();
-      img.src = dataUrl;
-      
+      const image = new Image();
+
+      image.src = dataUrl;
+
       await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
+        image.onload = resolve;
+        image.onerror = reject;
       });
 
-      // Calculate image dimensions to fit A4
-      const imageWidth = pdfWidth;
-      const imageHeight = (img.height * imageWidth) / img.width;
+      const imageWidth = image.width;
+      const imageHeight = image.height;
 
-      let position = 0;
-      let heightLeft = imageHeight;
+      // Fit resume inside A4
+      const widthRatio = pageWidth / imageWidth;
+      const heightRatio = pageHeight / imageHeight;
 
-      // Add first page
+      const scale = Math.min(widthRatio, heightRatio);
+
+      const finalWidth = imageWidth * scale;
+      const finalHeight = imageHeight * scale;
+
+      // Center image
+      const x = (pageWidth - finalWidth) / 2;
+      const y = (pageHeight - finalHeight) / 2;
+
       pdf.addImage(
         dataUrl,
         "PNG",
-        0,
-        position,
-        imageWidth,
-        imageHeight
+        x,
+        y,
+        finalWidth,
+        finalHeight,
+        undefined,
+        "FAST"
       );
 
-      heightLeft -= pdfHeight;
+      const fullName = safeString(
+        personalInformation?.fullName
+      );
 
-      // Add subsequent pages if content overflows
-      while (heightLeft > 0) {
-        position = -((imageHeight - heightLeft) - pdfHeight);
-        pdf.addPage();
-        pdf.addImage(
-          dataUrl,
-          "PNG",
-          0,
-          position,
-          imageWidth,
-          imageHeight
-        );
-        heightLeft -= pdfHeight;
-      }
-
-      // Generate filename
-      const fullName = personalInformation.fullName?.trim();
       const fileName = fullName
         ? `${fullName.replace(/\s+/g, "_")}_Resume.pdf`
         : "Resume.pdf";
 
       pdf.save(fileName);
-      
     } catch (error) {
       console.error("Error generating PDF:", error);
-      // You might want to show a toast notification here
+
+      alert(
+        "Unable to generate PDF. Please try again."
+      );
     }
   };
 
@@ -164,33 +317,40 @@ const Resume = ({ data }) => {
   // =========================================================
 
   const sectionTitle =
-    "text-[13px] font-bold uppercase tracking-wide border-b border-gray-300 pb-1";
+    "text-[12px] font-bold uppercase tracking-wide border-b border-gray-300 pb-[3px]";
 
   const subHeading =
-    "font-semibold text-[11px]";
+    "font-semibold text-[10px]";
 
   const bodyText =
-    "text-[10px] leading-[1.45]";
+    "text-[9px] leading-[1.35]";
+
+  // =========================================================
+  // RESUME
+  // =========================================================
 
   return (
-    <>
+    <div className="w-full">
+
       {/* =====================================================
-          RESUME
+          A4 RESUME
       ====================================================== */}
 
       <div
         ref={resumeRef}
         className="
           w-[210mm]
-          min-h-[297mm]
+          h-[297mm]
           mx-auto
           bg-white
           text-black
-          px-[16mm]
-          py-[12mm]
-          shadow-xl
+          px-[10mm]
+          py-[9mm]
+          overflow-hidden
           border
           border-gray-300
+          shadow-xl
+          box-border
         "
       >
 
@@ -198,180 +358,200 @@ const Resume = ({ data }) => {
             HEADER
         ================================================== */}
 
-        <header className="text-center border-b border-gray-400 pb-3">
+        <header className="text-center border-b border-gray-400 pb-2">
 
           {/* NAME */}
 
-          <h1 className="
-            text-[25px]
-            font-bold
-            uppercase
-            tracking-wide
-          ">
-            {personalInformation.fullName || ""}
-          </h1>
+          {personalInformation.fullName && (
+            <h1
+              className="
+                text-[23px]
+                font-bold
+                uppercase
+                tracking-wide
+                leading-none
+              "
+            >
+              {personalInformation.fullName}
+            </h1>
+          )}
 
           {/* LOCATION */}
 
           {personalInformation.location && (
-            <p className="
-              mt-0.5
-              text-[9px]
-              text-gray-600
-            ">
+            <p className="mt-1 text-[8px] text-gray-600">
               {personalInformation.location}
             </p>
           )}
 
           {/* EMAIL + PHONE */}
 
-          <div className="
-            flex
-            flex-wrap
-            justify-center
-            items-center
-            gap-x-4
-            gap-y-1
-            mt-1.5
-            text-[9px]
-            text-gray-700
-          ">
+          {(personalInformation.email ||
+            personalInformation.phoneNumber) && (
 
-            {personalInformation.email && (
-              <a
-                href={`mailto:${personalInformation.email}`}
-                className="flex items-center hover:underline"
-              >
-                <FaEnvelope className="mr-1" />
+            <div
+              className="
+                flex
+                flex-wrap
+                justify-center
+                items-center
+                gap-x-4
+                gap-y-0.5
+                mt-1
+                text-[8px]
+                text-gray-700
+              "
+            >
 
-                {personalInformation.email}
-              </a>
-            )}
+              {personalInformation.email && (
+                <a
+                  href={`mailto:${personalInformation.email}`}
+                  className="flex items-center hover:underline"
+                >
+                  <FaEnvelope className="mr-1 text-[8px]" />
 
-            {personalInformation.phoneNumber && (
-              <span className="flex items-center">
-                <FaPhone className="mr-1" />
+                  {personalInformation.email}
+                </a>
+              )}
 
-                {personalInformation.phoneNumber}
-              </span>
-            )}
+              {personalInformation.phoneNumber && (
+                <span className="flex items-center">
+                  <FaPhone className="mr-1 text-[8px]" />
 
-          </div>
+                  {personalInformation.phoneNumber}
+                </span>
+              )}
 
-          {/* GITHUB + LINKEDIN + PORTFOLIO */}
+            </div>
+          )}
 
-          <div className="
-            flex
-            flex-wrap
-            justify-center
-            items-center
-            gap-x-4
-            gap-y-1
-            mt-1
-            text-[9px]
-          ">
+          {/* SOCIAL LINKS */}
 
-            {personalInformation.gitHub && (
-              <a
-                href={personalInformation.gitHub}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="
-                  flex
-                  items-center
-                  text-gray-700
-                  hover:underline
-                "
-              >
-                <FaGithub className="mr-1" />
-                GitHub
-              </a>
-            )}
+          {(personalInformation.gitHub ||
+            personalInformation.linkedin ||
+            personalInformation.portfolio) && (
 
-            {personalInformation.linkedin && (
-              <a
-                href={personalInformation.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="
-                  flex
-                  items-center
-                  text-gray-700
-                  hover:underline
-                "
-              >
-                <FaLinkedin className="mr-1" />
-                LinkedIn
-              </a>
-            )}
+            <div
+              className="
+                flex
+                flex-wrap
+                justify-center
+                items-center
+                gap-x-4
+                gap-y-0.5
+                mt-1
+                text-[8px]
+              "
+            >
 
-            {personalInformation.portfolio && (
-              <a
-                href={personalInformation.portfolio}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="
-                  flex
-                  items-center
-                  text-gray-700
-                  hover:underline
-                "
-              >
-                <FaGlobe className="mr-1" />
-                Portfolio
-              </a>
-            )}
+              {personalInformation.gitHub && (
+                <a
+                  href={personalInformation.gitHub}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="
+                    flex
+                    items-center
+                    text-gray-700
+                    hover:underline
+                  "
+                >
+                  <FaGithub className="mr-1" />
 
-          </div>
+                  GitHub
+                </a>
+              )}
+
+              {personalInformation.linkedin && (
+                <a
+                  href={personalInformation.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="
+                    flex
+                    items-center
+                    text-gray-700
+                    hover:underline
+                  "
+                >
+                  <FaLinkedin className="mr-1" />
+
+                  LinkedIn
+                </a>
+              )}
+
+              {personalInformation.portfolio && (
+                <a
+                  href={personalInformation.portfolio}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="
+                    flex
+                    items-center
+                    text-gray-700
+                    hover:underline
+                  "
+                >
+                  <FaGlobe className="mr-1" />
+
+                  Portfolio
+                </a>
+              )}
+
+            </div>
+          )}
 
         </header>
-
 
         {/* =================================================
             PROFESSIONAL SUMMARY
         ================================================== */}
 
         {data.summary && (
-          <section className="mt-3">
+          <section className="mt-2.5">
 
             <h2 className={sectionTitle}>
               Professional Summary
             </h2>
 
-            <p className={`
-              mt-1.5
-              ${bodyText}
-              text-justify
-            `}>
+            <p
+              className={`
+                mt-1
+                ${bodyText}
+                text-justify
+              `}
+            >
               {data.summary}
             </p>
 
           </section>
         )}
 
-
         {/* =================================================
             EDUCATION
         ================================================== */}
 
         {education.length > 0 && (
-          <section className="mt-3">
+          <section className="mt-2.5">
 
             <h2 className={sectionTitle}>
               Education
             </h2>
 
-            <div className="mt-1.5 space-y-2">
+            <div className="mt-1 space-y-1.5">
 
               {education.map((edu, index) => (
+
                 <div key={index}>
 
-                  <div className="
-                    flex
-                    justify-between
-                    items-start
-                    gap-3
-                  ">
+                  <div
+                    className="
+                      flex
+                      justify-between
+                      items-start
+                      gap-3
+                    "
+                  >
 
                     <div>
 
@@ -382,20 +562,13 @@ const Resume = ({ data }) => {
                       )}
 
                       {edu?.university && (
-                        <p className="
-                          text-[10px]
-                          font-medium
-                          text-gray-800
-                        ">
+                        <p className="text-[9px] font-medium text-gray-800">
                           {edu.university}
                         </p>
                       )}
 
                       {edu?.location && (
-                        <p className="
-                          text-[9px]
-                          text-gray-600
-                        ">
+                        <p className="text-[8px] text-gray-600">
                           {edu.location}
                         </p>
                       )}
@@ -403,12 +576,14 @@ const Resume = ({ data }) => {
                     </div>
 
                     {edu?.graduationYear && (
-                      <span className="
-                        text-[10px]
-                        font-medium
-                        text-gray-700
-                        whitespace-nowrap
-                      ">
+                      <span
+                        className="
+                          text-[8px]
+                          font-medium
+                          text-gray-700
+                          whitespace-nowrap
+                        "
+                      >
                         {edu.graduationYear}
                       </span>
                     )}
@@ -416,6 +591,7 @@ const Resume = ({ data }) => {
                   </div>
 
                 </div>
+
               ))}
 
             </div>
@@ -423,37 +599,36 @@ const Resume = ({ data }) => {
           </section>
         )}
 
-
         {/* =================================================
             TECHNICAL SKILLS
         ================================================== */}
 
         {skills.length > 0 && (
-          <section className="mt-3">
+          <section className="mt-2.5">
 
             <h2 className={sectionTitle}>
               Technical Skills
             </h2>
 
-            <div className="
-              mt-1.5
-              grid
-              grid-cols-2
-              gap-x-8
-              gap-y-0.5
-            ">
+            <div
+              className="
+                mt-1
+                grid
+                grid-cols-2
+                gap-x-8
+                gap-y-0
+              "
+            >
 
               {skills.map((skill, index) => {
 
-                const title =
-                  typeof skill === "string"
-                    ? skill
-                    : skill?.title || "";
+                const title = getSkillTitle(skill);
 
-                const level =
-                  typeof skill === "object"
-                    ? skill?.level || ""
-                    : "";
+                const level = getSkillLevel(skill);
+
+                if (!title) {
+                  return null;
+                }
 
                 return (
                   <div
@@ -461,30 +636,23 @@ const Resume = ({ data }) => {
                     className="
                       flex
                       items-start
-                      text-[10px]
+                      text-[9px]
                       leading-4
                     "
                   >
 
-                    <span className="
-                      mr-1.5
-                      font-bold
-                    ">
+                    <span className="mr-1 font-bold">
                       •
                     </span>
 
                     <span>
 
-                      <span className="
-                        font-medium
-                      ">
+                      <span className="font-medium">
                         {title}
                       </span>
 
                       {level && (
-                        <span className="
-                          text-gray-600
-                        ">
+                        <span className="text-gray-600">
                           {" "}
                           ({level})
                         </span>
@@ -501,29 +669,31 @@ const Resume = ({ data }) => {
           </section>
         )}
 
-
         {/* =================================================
             EXPERIENCE
         ================================================== */}
 
         {experience.length > 0 && (
-          <section className="mt-3">
+          <section className="mt-2.5">
 
             <h2 className={sectionTitle}>
               Experience
             </h2>
 
-            <div className="mt-1.5 space-y-2.5">
+            <div className="mt-1 space-y-1.5">
 
               {experience.map((exp, index) => (
+
                 <div key={index}>
 
-                  <div className="
-                    flex
-                    justify-between
-                    items-start
-                    gap-3
-                  ">
+                  <div
+                    className="
+                      flex
+                      justify-between
+                      items-start
+                      gap-3
+                    "
+                  >
 
                     <div>
 
@@ -535,30 +705,31 @@ const Resume = ({ data }) => {
 
                       {(exp?.company ||
                         exp?.location) && (
-                        <p className="
-                          text-[10px]
-                          font-medium
-                          text-gray-700
-                        ">
+
+                        <p className="text-[9px] font-medium text-gray-700">
+
                           {exp?.company || ""}
 
                           {exp?.company &&
-                            exp?.location
+                          exp?.location
                             ? " | "
                             : ""}
 
                           {exp?.location || ""}
+
                         </p>
                       )}
 
                     </div>
 
                     {exp?.duration && (
-                      <span className="
-                        text-[9px]
-                        text-gray-600
-                        whitespace-nowrap
-                      ">
+                      <span
+                        className="
+                          text-[8px]
+                          text-gray-600
+                          whitespace-nowrap
+                        "
+                      >
                         {exp.duration}
                       </span>
                     )}
@@ -566,283 +737,347 @@ const Resume = ({ data }) => {
                   </div>
 
                   {exp?.responsibility && (
-                    <p className="
-                      mt-0.5
-                      text-[10px]
-                      leading-[1.45]
-                    ">
+                    <p className="mt-0.5 text-[9px] leading-[1.35]">
                       {exp.responsibility}
                     </p>
                   )}
 
                 </div>
+
               ))}
 
             </div>
 
           </section>
         )}
-
 
         {/* =================================================
             PROJECTS
         ================================================== */}
 
         {projects.length > 0 && (
-          <section className="mt-3">
+          <section className="mt-2.5">
 
             <h2 className={sectionTitle}>
               Projects
             </h2>
 
-            <div className="mt-1.5 space-y-2.5">
+            <div className="mt-1 space-y-1.5">
 
-              {projects.map((project, index) => (
-                <div key={index}>
+              {projects.map((project, index) => {
 
-                  {project?.title && (
-                    <h3 className={subHeading}>
-                      {project.title}
-                    </h3>
-                  )}
+                const technologies =
+                  getProjectTechnologies(project);
 
-                  {project?.description && (
-                    <p className="
-                      mt-0.5
-                      text-[10px]
-                      leading-[1.45]
-                    ">
-                      {project.description}
-                    </p>
-                  )}
+                return (
+                  <div key={index}>
 
-                  {Array.isArray(
-                    project?.technologiesUsed
-                  ) &&
-                    project.technologiesUsed.length > 0 && (
-                      <p className="
-                        mt-0.5
-                        text-[9px]
-                        text-gray-700
-                      ">
+                    {project?.title && (
+                      <h3 className={subHeading}>
+                        {project.title}
+                      </h3>
+                    )}
+
+                    {project?.description && (
+                      <p className="mt-0.5 text-[9px] leading-[1.35]">
+                        {project.description}
+                      </p>
+                    )}
+
+                    {technologies.length > 0 && (
+                      <p className="mt-0.5 text-[8px] text-gray-700">
 
                         <span className="font-semibold">
                           Technologies:
-                        </span>{" "}
+                        </span>
 
-                        {project.technologiesUsed.join(", ")}
+                        {" "}
+
+                        {technologies.join(", ")}
 
                       </p>
                     )}
 
-                  {project?.githubLink && (
-                    <a
-                      href={project.githubLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="
-                        text-gray-700
-                        hover:underline
-                        text-[9px]
-                        inline-flex
-                        items-center
-                        mt-0.5
-                      "
-                    >
-                      <FaGithub className="mr-1" />
-                      GitHub Repository
-                    </a>
-                  )}
+                    {project?.githubLink && (
+                      <a
+                        href={project.githubLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="
+                          text-gray-700
+                          hover:underline
+                          text-[8px]
+                          inline-flex
+                          items-center
+                          mt-0.5
+                        "
+                      >
+                        <FaGithub className="mr-1" />
 
-                </div>
-              ))}
+                        GitHub Repository
+                      </a>
+                    )}
+
+                  </div>
+                );
+              })}
 
             </div>
 
           </section>
         )}
-
 
         {/* =================================================
             CERTIFICATIONS
         ================================================== */}
 
         {certifications.length > 0 && (
-          <section className="mt-3">
+          <section className="mt-2.5">
 
             <h2 className={sectionTitle}>
               Certifications
             </h2>
 
-            <div className="
-              mt-1.5
-              space-y-1
-            ">
+            <div className="mt-1 space-y-0.5">
 
-              {certifications.map((cert, index) => (
-                <div
-                  key={index}
-                  className="text-[10px] leading-4"
-                >
+              {certifications.map((cert, index) => {
 
-                  {cert?.title && (
-                    <span className="font-semibold">
-                      {cert.title}
+                const title =
+                  getCertificationTitle(cert);
+
+                const issuer =
+                  getCertificationIssuer(cert);
+
+                const year =
+                  getCertificationYear(cert);
+
+                if (!title && !issuer && !year) {
+                  return null;
+                }
+
+                return (
+                  <div
+                    key={index}
+                    className="text-[9px] leading-4"
+                  >
+
+                    <span className="mr-1 font-bold">
+                      •
                     </span>
-                  )}
 
-                  {cert?.issuingOrganization && (
-                    <>
-                      {" - "}
-                      <span className="text-gray-700">
-                        {cert.issuingOrganization}
+                    {title && (
+                      <span className="font-semibold">
+                        {title}
                       </span>
-                    </>
-                  )}
+                    )}
 
-                  {cert?.year && (
-                    <span className="text-gray-600">
-                      {" "}
-                      ({cert.year})
-                    </span>
-                  )}
+                    {issuer && (
+                      <>
+                        {title ? " - " : ""}
 
-                </div>
-              ))}
+                        <span className="text-gray-700">
+                          {issuer}
+                        </span>
+                      </>
+                    )}
+
+                    {year && (
+                      <span className="text-gray-600">
+                        {" "}
+                        ({year})
+                      </span>
+                    )}
+
+                  </div>
+                );
+              })}
 
             </div>
 
           </section>
         )}
-
 
         {/* =================================================
             ACHIEVEMENTS
         ================================================== */}
 
         {achievements.length > 0 && (
-          <section className="mt-3">
+          <section className="mt-2.5">
 
             <h2 className={sectionTitle}>
               Achievements
             </h2>
 
-            <div className="
-              mt-1.5
-              space-y-1.5
-            ">
+            <div className="mt-1 space-y-1">
 
-              {achievements.map(
-                (achievement, index) => (
+              {achievements.map((achievement, index) => {
+
+                const title =
+                  getAchievementTitle(achievement);
+
+                const description =
+                  getAchievementDescription(
+                    achievement
+                  );
+
+                const year =
+                  getAchievementYear(achievement);
+
+                if (!title && !description && !year) {
+                  return null;
+                }
+
+                return (
                   <div key={index}>
 
-                    <div className="
-                      flex
-                      justify-between
-                      items-start
-                      gap-3
-                    ">
+                    <div
+                      className="
+                        flex
+                        justify-between
+                        items-start
+                        gap-3
+                      "
+                    >
 
-                      <h3 className="
-                        font-semibold
-                        text-[10px]
-                      ">
-                        {achievement?.title || ""}
-                      </h3>
+                      <div className="flex-1">
 
-                      {achievement?.year && (
-                        <span className="
-                          text-[9px]
-                          text-gray-600
-                          whitespace-nowrap
-                        ">
-                          {achievement.year}
+                        {title && (
+                          <p
+                            className="
+                              text-[9px]
+                              font-semibold
+                              leading-[1.35]
+                            "
+                          >
+
+                            <span className="mr-1">
+                              •
+                            </span>
+
+                            {title}
+
+                          </p>
+                        )}
+
+                        {description && (
+                          <p
+                            className="
+                              ml-3
+                              mt-0.5
+                              text-[8px]
+                              text-gray-700
+                              leading-[1.35]
+                            "
+                          >
+                            {description}
+                          </p>
+                        )}
+
+                      </div>
+
+                      {year && (
+                        <span
+                          className="
+                            text-[8px]
+                            text-gray-600
+                            whitespace-nowrap
+                          "
+                        >
+                          {year}
                         </span>
                       )}
 
                     </div>
 
-                    {achievement?.extraInformation && (
-                      <p className="
-                        mt-0.5
-                        text-[9px]
-                        leading-4
-                      ">
-                        {achievement.extraInformation}
-                      </p>
-                    )}
-
                   </div>
-                )
-              )}
+                );
+              })}
 
             </div>
 
           </section>
         )}
-
 
         {/* =================================================
             LANGUAGES
         ================================================== */}
 
         {languages.length > 0 && (
-          <section className="mt-3">
+          <section className="mt-2.5">
 
             <h2 className={sectionTitle}>
               Languages
             </h2>
 
-            <div className="
-              mt-1.5
-              flex
-              flex-wrap
-              gap-x-5
-              gap-y-1
-              text-[10px]
-            ">
+            <div
+              className="
+                mt-1
+                flex
+                flex-wrap
+                gap-x-5
+                gap-y-0.5
+                text-[9px]
+              "
+            >
 
-              {languages.map(
-                (language, index) => (
+              {languages.map((language, index) => {
+
+                const name =
+                  getLanguageName(language);
+
+                if (!name) {
+                  return null;
+                }
+
+                return (
                   <span key={index}>
-                    {language?.name || ""}
+                    {name}
                   </span>
-                )
-              )}
+                );
+              })}
 
             </div>
 
           </section>
         )}
-
 
         {/* =================================================
             INTERESTS
         ================================================== */}
 
         {interests.length > 0 && (
-          <section className="mt-3">
+          <section className="mt-2.5">
 
             <h2 className={sectionTitle}>
               Interests
             </h2>
 
-            <div className="
-              mt-1.5
-              flex
-              flex-wrap
-              gap-x-5
-              gap-y-1
-              text-[10px]
-            ">
+            <div
+              className="
+                mt-1
+                flex
+                flex-wrap
+                gap-x-5
+                gap-y-0.5
+                text-[9px]
+              "
+            >
 
-              {interests.map(
-                (interest, index) => (
+              {interests.map((interest, index) => {
+
+                const name =
+                  getInterestName(interest);
+
+                if (!name) {
+                  return null;
+                }
+
+                return (
                   <span key={index}>
-                    {interest?.name || ""}
+                    {name}
                   </span>
-                )
-              )}
+                );
+              })}
 
             </div>
 
@@ -851,32 +1086,35 @@ const Resume = ({ data }) => {
 
       </div>
 
-
       {/* =====================================================
           DOWNLOAD BUTTON
       ====================================================== */}
 
-      <div className="
-        flex
-        justify-center
-        mt-4
-        mb-8
-      ">
+      <div className="flex justify-center mt-5 mb-8">
 
         <button
           type="button"
           onClick={handleDownloadPdf}
           className="
-            btn
-            btn-primary
+            bg-indigo-600
+            hover:bg-indigo-700
+            text-white
+            font-semibold
             px-8
+            py-2.5
+            rounded-lg
+            shadow-md
+            transition
+            duration-200
+            cursor-pointer
           "
         >
           Download PDF
         </button>
 
       </div>
-    </>
+
+    </div>
   );
 };
 

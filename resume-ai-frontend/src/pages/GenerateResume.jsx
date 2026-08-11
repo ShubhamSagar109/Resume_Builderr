@@ -19,12 +19,14 @@ import {
   FaCode,
 } from "react-icons/fa";
 
-import { BiBook } from "react-icons/bi";
-
 import { useForm, useFieldArray } from "react-hook-form";
 
 import { generateResume } from "../api/ResumeService";
 import Resume from "../components/Resume";
+
+// =========================================================
+// DEFAULT VALUES
+// =========================================================
 
 const defaultValues = {
   personalInformation: {
@@ -103,6 +105,10 @@ const defaultValues = {
     },
   ],
 };
+
+// =========================================================
+// COMPONENT
+// =========================================================
 
 const GenerateResume = () => {
   const [loading, setLoading] = useState(false);
@@ -194,56 +200,33 @@ const GenerateResume = () => {
   });
 
   // =========================================================
-  // NORMALIZE ARRAY
-  // =========================================================
-
-  const normalizeArray = (value) => {
-    if (Array.isArray(value)) {
-      return value;
-    }
-
-    if (typeof value === "string" && value.trim()) {
-      return value
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean);
-    }
-
-    return [];
-  };
-
-  // =========================================================
   // FORMAT AI RESPONSE
   // =========================================================
 
-  const formatResumeData = (resumeData) => {
-    const personal = resumeData?.personalInformation || {};
-
+  const formatResumeData = (data) => {
     return {
       personalInformation: {
-        fullName: personal.fullName || "",
-        email: personal.email || "",
-        phoneNumber: personal.phoneNumber || "",
-        location: personal.location || "",
-
-        linkedin: personal.linkedin || personal.linkedIn || "",
-
-        gitHub: personal.gitHub || personal.github || "",
-
-        portfolio: personal.portfolio || "",
+        fullName: data?.personalInformation?.fullName || "",
+        email: data?.personalInformation?.email || "",
+        phoneNumber: data?.personalInformation?.phoneNumber || "",
+        location: data?.personalInformation?.location || "",
+        linkedin: data?.personalInformation?.linkedin || "",
+        gitHub: data?.personalInformation?.gitHub || "",
+        portfolio: data?.personalInformation?.portfolio || "",
       },
 
-      summary:
-        typeof resumeData?.summary === "string"
-          ? resumeData.summary
-          : "",
+      summary: data?.summary || "",
 
-      skills: Array.isArray(resumeData?.skills)
-        ? resumeData.skills.map((skill) => ({
+      // =====================================================
+      // SKILLS
+      // =====================================================
+
+      skills: Array.isArray(data?.skills)
+        ? data.skills.map((skill) => ({
             title:
               typeof skill === "string"
                 ? skill
-                : skill?.title || "",
+                : skill?.title || skill?.name || "",
 
             level:
               typeof skill === "object"
@@ -252,62 +235,117 @@ const GenerateResume = () => {
           }))
         : [],
 
-      experience: Array.isArray(resumeData?.experience)
-        ? resumeData.experience.map((exp) => ({
-            jobTitle: exp?.jobTitle || "",
-            company: exp?.company || "",
-            location: exp?.location || "",
-            duration: exp?.duration || "",
-            responsibility: exp?.responsibility || "",
+      // =====================================================
+      // EXPERIENCE
+      // =====================================================
+
+      experience: Array.isArray(data?.experience)
+        ? data.experience.map((experience) => ({
+            jobTitle: experience?.jobTitle || "",
+            company: experience?.company || "",
+            location: experience?.location || "",
+            duration: experience?.duration || "",
+            responsibility:
+              experience?.responsibility || "",
           }))
         : [],
 
-      education: Array.isArray(resumeData?.education)
-        ? resumeData.education.map((edu) => ({
-            degree: edu?.degree || "",
-            university: edu?.university || "",
-            location: edu?.location || "",
-            graduationYear: edu?.graduationYear || "",
+      // =====================================================
+      // EDUCATION
+      // =====================================================
+
+      education: Array.isArray(data?.education)
+        ? data.education.map((education) => ({
+            degree: education?.degree || "",
+            university: education?.university || "",
+            location: education?.location || "",
+            graduationYear:
+              education?.graduationYear || "",
           }))
         : [],
 
-      certifications: Array.isArray(resumeData?.certifications)
-        ? resumeData.certifications.map((cert) => ({
-            title: cert?.title || "",
+      // =====================================================
+      // CERTIFICATIONS
+      // Supports both:
+      // name / issuer
+      // AND
+      // title / issuingOrganization
+      // =====================================================
+
+      certifications: Array.isArray(data?.certifications)
+        ? data.certifications.map((certification) => ({
+            title:
+              certification?.title ||
+              certification?.name ||
+              "",
+
             issuingOrganization:
-              cert?.issuingOrganization || "",
-            year: cert?.year || "",
+              certification?.issuingOrganization ||
+              certification?.issuer ||
+              "",
+
+            year: certification?.year || "",
           }))
         : [],
 
-      projects: Array.isArray(resumeData?.projects)
-        ? resumeData.projects.map((project) => ({
+      // =====================================================
+      // PROJECTS
+      // =====================================================
+
+      projects: Array.isArray(data?.projects)
+        ? data.projects.map((project) => ({
             title: project?.title || "",
-            description: project?.description || "",
 
-            technologiesUsed: normalizeArray(
+            description:
+              project?.description || "",
+
+            technologiesUsed: Array.isArray(
               project?.technologiesUsed
-            ),
+            )
+              ? project.technologiesUsed
+              : typeof project?.technologiesUsed === "string"
+              ? project.technologiesUsed
+                  .split(",")
+                  .map((technology) => technology.trim())
+                  .filter(Boolean)
+              : [],
 
-            githubLink: project?.githubLink || "",
+            githubLink:
+              project?.githubLink || "",
           }))
         : [],
 
-      achievements: Array.isArray(resumeData?.achievements)
-        ? resumeData.achievements.map((achievement) => ({
-            title: achievement?.title || "",
+      // =====================================================
+      // ACHIEVEMENTS
+      // Supports both:
+      // name / description
+      // AND
+      // title / extraInformation
+      // =====================================================
+
+      achievements: Array.isArray(data?.achievements)
+        ? data.achievements.map((achievement) => ({
+            title:
+              achievement?.title ||
+              achievement?.name ||
+              "",
+
             year: achievement?.year || "",
+
             extraInformation:
-              achievement?.extraInformation || "",
+              achievement?.extraInformation ||
+              achievement?.description ||
+              "",
           }))
         : [],
 
-      languages: Array.isArray(resumeData?.languages)
-        ? resumeData.languages.map((language, index) => ({
-            id:
-              typeof language?.id === "number"
-                ? language.id
-                : index + 1,
+      // =====================================================
+      // LANGUAGES
+      // =====================================================
+
+      languages: Array.isArray(data?.languages)
+        ? data.languages.map((language, index) => ({
+            id: index + 1,
 
             name:
               typeof language === "string"
@@ -316,8 +354,12 @@ const GenerateResume = () => {
           }))
         : [],
 
-      interests: Array.isArray(resumeData?.interests)
-        ? resumeData.interests.map((interest) => ({
+      // =====================================================
+      // INTERESTS
+      // =====================================================
+
+      interests: Array.isArray(data?.interests)
+        ? data.interests.map((interest) => ({
             name:
               typeof interest === "string"
                 ? interest
@@ -345,11 +387,22 @@ const GenerateResume = () => {
         userDescription.trim()
       );
 
+      // =====================================================
+      // API CALL
+      // =====================================================
+
       const response = await generateResume({
         userDescription: userDescription.trim(),
       });
 
-      console.log("FULL BACKEND RESPONSE:", response);
+      console.log(
+        "FULL BACKEND RESPONSE:",
+        response
+      );
+
+      // =====================================================
+      // VALIDATE RESPONSE
+      // =====================================================
 
       if (
         !response ||
@@ -361,18 +414,33 @@ const GenerateResume = () => {
         );
       }
 
-      const formattedData = formatResumeData(response);
+      // =====================================================
+      // FORMAT RESPONSE
+      // =====================================================
+
+      const formattedData =
+        formatResumeData(response);
 
       console.log(
         "FORMATTED RESUME DATA:",
         formattedData
       );
 
+      // =====================================================
+      // UPDATE FORM
+      // =====================================================
+
       reset(formattedData);
+
+      // =====================================================
+      // UPDATE PREVIEW
+      // =====================================================
 
       setGeneratedResume(formattedData);
 
-      toast.success("Resume generated successfully!");
+      toast.success(
+        "Resume generated successfully!"
+      );
     } catch (error) {
       console.error(
         "Resume generation error:",
@@ -422,15 +490,20 @@ const GenerateResume = () => {
   // =========================================================
 
   const onSubmit = (data) => {
-    console.log("MANUAL FORM DATA:", data);
+    console.log(
+      "MANUAL FORM DATA:",
+      data
+    );
 
     setGeneratedResume(data);
 
-    toast.success("Resume preview updated.");
+    toast.success(
+      "Resume preview updated."
+    );
   };
 
   // =========================================================
-  // COMMON LIGHT INPUT CLASS
+  // COMMON INPUT CLASSES
   // =========================================================
 
   const inputClass =
@@ -456,18 +529,22 @@ const GenerateResume = () => {
 
           <div className="text-center mb-12">
             <div className="flex justify-center items-center gap-3 mb-3">
+
               <div className="relative">
                 <FaBrain className="text-[#F4D6A4] text-5xl drop-shadow-[0_0_30px_rgba(216,91,155,0.6)] animate-pulse" />
+
                 <div className="absolute -inset-1 bg-[#D85B9B]/20 blur-xl rounded-full"></div>
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-[#F4D6A4] via-[#E8B4D8] to-[#D85B9B] bg-clip-text text-transparent">
                 AI Resume Builder
               </h1>
+
             </div>
 
             <p className="mt-3 text-[#F3EAF4]/70 text-base sm:text-lg max-w-2xl mx-auto leading-7">
-              Craft your professional IT resume with the power of artificial intelligence
+              Craft your professional IT resume with the
+              power of artificial intelligence
             </p>
           </div>
 
@@ -476,6 +553,7 @@ const GenerateResume = () => {
           ================================================= */}
 
           <div className="bg-gradient-to-br from-[#1a1225] via-[#24182B] to-[#1a0f1f] border border-[#D85B9B]/30 rounded-[26px] shadow-[0_24px_70px_rgba(0,0,0,0.50)] mb-8 overflow-hidden backdrop-blur-sm">
+
             <div className="p-6 sm:p-8 lg:p-9 border-t-4 border-[#D85B9B]">
 
               <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
@@ -484,7 +562,9 @@ const GenerateResume = () => {
               </h2>
 
               <p className="text-[#C4B5C6] leading-7 mt-1">
-                Enter your skills, education, projects, experience and career goals. AI will generate your resume.
+                Enter your skills, education, projects,
+                experience and career goals. AI will generate
+                your resume.
               </p>
 
               <textarea
@@ -545,11 +625,14 @@ const GenerateResume = () => {
             ================================================= */}
 
             <div className="bg-gradient-to-br from-[#1a1225] via-[#24182B] to-[#1a0f1f] border border-[#D85B9B]/20 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.40)] overflow-hidden backdrop-blur-sm">
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2 mb-5">
                   <FaUser className="text-[#D85B9B]" />
+
                   <span className="w-2 h-7 rounded-full bg-gradient-to-b from-[#D85B9B] to-[#F4D6A4] shadow-sm inline-block"></span>
+
                   Personal Information
                 </h2>
 
@@ -621,12 +704,17 @@ const GenerateResume = () => {
             ================================================= */}
 
             <div className="bg-gradient-to-br from-[#1a1225] via-[#24182B] to-[#1a0f1f] border border-[#D85B9B]/20 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.40)] overflow-hidden backdrop-blur-sm">
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2 mb-5">
+
                   <FaFileAlt className="text-[#D85B9B]" />
+
                   <span className="w-2 h-7 rounded-full bg-gradient-to-b from-[#D85B9B] to-[#F4D6A4] shadow-sm inline-block"></span>
+
                   Professional Summary
+
                 </h2>
 
                 <textarea
@@ -643,13 +731,17 @@ const GenerateResume = () => {
             ================================================= */}
 
             <div className="bg-gradient-to-br from-[#1a1225] via-[#24182B] to-[#1a0f1f] border border-[#D85B9B]/20 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.40)] overflow-hidden backdrop-blur-sm">
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaCode className="text-[#D85B9B]" />
+
                     Skills
+
                   </h2>
 
                   <button
@@ -703,6 +795,7 @@ const GenerateResume = () => {
 
                   </div>
                 ))}
+
               </div>
             </div>
 
@@ -711,13 +804,17 @@ const GenerateResume = () => {
             ================================================= */}
 
             <div className="bg-gradient-to-br from-[#1a1225] via-[#24182B] to-[#1a0f1f] border border-[#D85B9B]/20 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.40)] overflow-hidden backdrop-blur-sm">
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaBriefcase className="text-[#D85B9B]" />
+
                     Experience
+
                   </h2>
 
                   <button
@@ -802,6 +899,7 @@ const GenerateResume = () => {
 
                   </div>
                 ))}
+
               </div>
             </div>
 
@@ -810,13 +908,17 @@ const GenerateResume = () => {
             ================================================= */}
 
             <div className="bg-gradient-to-br from-[#1a1225] via-[#24182B] to-[#1a0f1f] border border-[#D85B9B]/20 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.40)] overflow-hidden backdrop-blur-sm">
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaGraduationCap className="text-[#D85B9B]" />
+
                     Education
+
                   </h2>
 
                   <button
@@ -892,6 +994,7 @@ const GenerateResume = () => {
 
                   </div>
                 ))}
+
               </div>
             </div>
 
@@ -900,13 +1003,17 @@ const GenerateResume = () => {
             ================================================= */}
 
             <div className="bg-gradient-to-br from-[#1a1225] via-[#24182B] to-[#1a0f1f] border border-[#D85B9B]/20 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.40)] overflow-hidden backdrop-blur-sm">
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaCertificate className="text-[#D85B9B]" />
+
                     Certifications
+
                   </h2>
 
                   <button
@@ -979,13 +1086,17 @@ const GenerateResume = () => {
             ================================================= */}
 
             <div className="bg-gradient-to-br from-[#1a1225] via-[#24182B] to-[#1a0f1f] border border-[#D85B9B]/20 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.40)] overflow-hidden backdrop-blur-sm">
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaProjectDiagram className="text-[#D85B9B]" />
+
                     Projects
+
                   </h2>
 
                   <button
@@ -1057,6 +1168,7 @@ const GenerateResume = () => {
 
                   </div>
                 ))}
+
               </div>
             </div>
 
@@ -1065,13 +1177,17 @@ const GenerateResume = () => {
             ================================================= */}
 
             <div className="bg-gradient-to-br from-[#1a1225] via-[#24182B] to-[#1a0f1f] border border-[#D85B9B]/20 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.40)] overflow-hidden backdrop-blur-sm">
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaTrophy className="text-[#D85B9B]" />
+
                     Achievements
+
                   </h2>
 
                   <button
@@ -1145,13 +1261,17 @@ const GenerateResume = () => {
             ================================================= */}
 
             <div className="bg-gradient-to-br from-[#1a1225] via-[#24182B] to-[#1a0f1f] border border-[#D85B9B]/20 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.40)] overflow-hidden backdrop-blur-sm">
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaLanguage className="text-[#D85B9B]" />
+
                     Languages
+
                   </h2>
 
                   <button
@@ -1206,13 +1326,17 @@ const GenerateResume = () => {
             ================================================= */}
 
             <div className="bg-gradient-to-br from-[#1a1225] via-[#24182B] to-[#1a0f1f] border border-[#D85B9B]/20 rounded-[26px] shadow-[0_20px_60px_rgba(0,0,0,0.40)] overflow-hidden backdrop-blur-sm">
+
               <div className="p-6 sm:p-8 lg:p-9">
 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
 
                   <h2 className="text-xl sm:text-2xl font-bold text-[#F4D6A4] flex items-center gap-2">
+
                     <FaHeart className="text-[#D85B9B]" />
+
                     Interests
+
                   </h2>
 
                   <button
@@ -1278,16 +1402,18 @@ const GenerateResume = () => {
           </form>
 
           {/* =================================================
-              PREVIEW
+              RESUME PREVIEW
           ================================================= */}
 
           {generatedResume && (
             <div className="mt-14">
 
               <div className="divider text-xl font-extrabold text-[#F4D6A4] my-10">
+
                 <span className="bg-gradient-to-r from-[#D85B9B] to-[#F4D6A4] bg-clip-text text-transparent">
                   Resume Preview
                 </span>
+
               </div>
 
               <Resume data={generatedResume} />
