@@ -1,4 +1,4 @@
- Resume AI- AI-Powered Resume Builder
+                          Resume AI ( AI-Powered Resume Builder )
 
    An AI-powered full-stack resume builder that transforms a user's description into a professional, structured IT resume and allows it to be customized and exported.
 
