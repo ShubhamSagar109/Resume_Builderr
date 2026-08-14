@@ -98,3 +98,129 @@ The application integrates an AI model using Groq APi to transform natural-langu
          |__ pom.xml
          |
          |__mnvw
+
+Main Features
+
+1. AI Resume Generation
+   Users can provide a description such as:
+    I am a Computer Science student with experience in Java,
+    Spring Boot, React.js.....
+   AI processes the description and generates structured resume information.
+
+3. Structured Resume Data
+   The AI generates information in a structured format:
+       {
+							   "personalInformation" : {
+										   "fullName" : "Shubham Sagar",
+													"email" : "shubhamsagar109@gmail.com"
+													"phoneNumber" : "+91 9876543210",
+													"location" : null,
+													"linkedIn" : null,
+													"gitHub" : null,
+													"portfolio" : null
+										},
+										"summary: "Full-stack developer...",
+										"skills" : [],
+										"experience: : [],
+										"education" : [],
+										"certifications" : [],
+										"projects" : [],
+										"achievements" : [],
+										"languages" : [],
+										"interests" : [],
+							}
+API Endpoints
+
+Generate Resume
+
+   Request : POST/api/v1/generate/generate
+   Request Body 
+			{
+			   "userDescription: : "I am a Java full stack Developer..."
+			}
+
+			Response
+			{
+			    "think" : null,
+							"data" : {
+							   "personalInformation" : {
+										   "fullName" : "Shubham Sagar",
+													"email" : "shubhamsagar109@gmail.com"
+													"phoneNumber" : "+91 9876543210",
+													"location" : null,
+													"linkedIn" : null,
+													"gitHub" : null,
+													"portfolio" : null
+										},
+										"summary: "Full-stack developer...",
+										"skills" : [],
+										"experience: : [],
+										"education" : [],
+										"certifications" : [],
+										"projects" : [],
+										"achievements" : [],
+										"languages" : [],
+										"interests" : [],
+							}
+			}
+
+			Installation
+			  -> Java 21
+					-> Maven
+					-> Node.js
+					-> npm
+					-> MySQL
+					-> Git
+
+			Frontend Setup
+
+			Navigate to the frontend directory
+			   - cd resume-ai-frontend
+
+					 Install dependencies
+						   * npm install
+						Start the develpoment server
+						   * npm run dev
+						The frontend will normally run at : 
+						   http://localhost:5173
+						And deployed on vercel :
+						   https://resume-builderr-fawn.vercel.app/
+
+			Backend Setup
+
+			Navigate to the backend :
+			  - cd resume-backend
+
+			Build the project:
+			  * mvn clean install
+
+			Run the Spring Boot application:
+			  * mvn spring-boot:run
+
+			The backend will normally run at:
+			    http://localhost:8000
+			And deployed on railway.app:
+			    https://resume-builder-production-f36e.up.railway.app/
+
+Example User Flow
+
+ Step 1
+	  User opens the application.
+	Step 2
+	  Clicks on Create my Resume.
+	Step 3
+	  User enters his/her description about himself/herself.
+	Step 4
+	  POST /api/v1/resume/generate
+	Step 5
+	  Spring Boot sends the description to the AI model.
+	Step 6
+	  The AI returned structured resume data.
+	Step 7
+	  The frontend automatically fill the resume form.
+	Step 8
+	  User reviews and edits the information.
+	Step 9
+	  The resume preview is generated.
+	Step 10
+	  User exports the final resume as PDF by clicking download button.
