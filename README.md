@@ -1,4 +1,8 @@
+<<<<<<< HEAD
                           Resume AI ( AI-Powered Resume Builder )
+=======
+ Resume AI- AI-Powered Resume Builder
+>>>>>>> 2871add (updated)
 
    An AI-powered full-stack resume builder that transforms a user's description into a professional, structured IT resume and allows it to be customized and exported.
 
@@ -97,6 +101,7 @@ The application integrates an AI model using Groq APi to transform natural-langu
          |
          |__ pom.xml
          |
+<<<<<<< HEAD
          |__mnvw
 
 Main Features
@@ -224,3 +229,6 @@ Example User Flow
 	  The resume preview is generated.
 	Step 10
 	  User exports the final resume as PDF by clicking download button.
+=======
+         |__mnvw
+>>>>>>> 2871add (updated)
