@@ -1,5 +1,11 @@
 import React, { useRef } from "react";
-import { FaEnvelope, FaPhone, FaGithub, FaLinkedin, FaGlobe } from "react-icons/fa";
+import {
+  FaEnvelope,
+  FaPhone,
+  FaGithub,
+  FaLinkedin,
+  FaGlobe,
+} from "react-icons/fa";
 
 const Resume = ({ data }) => {
   const resumeRef = useRef(null);
@@ -7,17 +13,27 @@ const Resume = ({ data }) => {
   const personal = data?.personalInformation || {};
 
   const skills = Array.isArray(data?.skills) ? data.skills : [];
-  const experience = Array.isArray(data?.experience) ? data.experience : [];
-  const education = Array.isArray(data?.education) ? data.education : [];
+  const experience = Array.isArray(data?.experience)
+    ? data.experience
+    : [];
+  const education = Array.isArray(data?.education)
+    ? data.education
+    : [];
   const certifications = Array.isArray(data?.certifications)
     ? data.certifications
     : [];
-  const projects = Array.isArray(data?.projects) ? data.projects : [];
+  const projects = Array.isArray(data?.projects)
+    ? data.projects
+    : [];
   const achievements = Array.isArray(data?.achievements)
     ? data.achievements
     : [];
-  const languages = Array.isArray(data?.languages) ? data.languages : [];
-  const interests = Array.isArray(data?.interests) ? data.interests : [];
+  const languages = Array.isArray(data?.languages)
+    ? data.languages
+    : [];
+  const interests = Array.isArray(data?.interests)
+    ? data.interests
+    : [];
 
   return (
     <div
@@ -28,7 +44,7 @@ const Resume = ({ data }) => {
         background: "#ffffff",
       }}
     >
-      {/* ================================
+      {/* =================================
           A4 RESUME PAGE
       ================================= */}
 
@@ -40,15 +56,13 @@ const Resume = ({ data }) => {
           height: "297mm",
           boxSizing: "border-box",
 
-          /* Equal margins */
-          padding: "9mm 11mm",
+          padding: "10mm 12mm",
 
           margin: "0 auto",
 
           backgroundColor: "#ffffff",
           color: "#111111",
 
-          /* IMPORTANT: remove left highlighting */
           border: "none",
           borderLeft: "none",
           boxShadow: "none",
@@ -58,7 +72,7 @@ const Resume = ({ data }) => {
 
           fontFamily: "Arial, Helvetica, sans-serif",
           fontSize: "11px",
-          lineHeight: "1.35",
+          lineHeight: "1.4",
         }}
       >
         {/* =================================
@@ -68,16 +82,18 @@ const Resume = ({ data }) => {
         <div
           style={{
             textAlign: "center",
-            marginBottom: "8px",
+            marginBottom: "10px",
+            paddingBottom: "8px",
+            borderBottom: "2px solid #222222",
           }}
         >
           <h1
             style={{
               margin: 0,
-              fontSize: "28px",
-              fontWeight: 800,
+              fontSize: "27px",
+              fontWeight: 700,
               textTransform: "uppercase",
-              letterSpacing: "0.3px",
+              letterSpacing: "0.5px",
               color: "#111111",
             }}
           >
@@ -87,7 +103,7 @@ const Resume = ({ data }) => {
           {personal.location && (
             <div
               style={{
-                marginTop: "2px",
+                marginTop: "3px",
                 fontSize: "9px",
                 color: "#555555",
               }}
@@ -104,7 +120,7 @@ const Resume = ({ data }) => {
               justifyContent: "center",
               alignItems: "center",
               flexWrap: "wrap",
-              gap: "12px",
+              gap: "11px",
               marginTop: "6px",
               fontSize: "9px",
               color: "#444444",
@@ -145,7 +161,7 @@ const Resume = ({ data }) => {
               justifyContent: "center",
               alignItems: "center",
               flexWrap: "wrap",
-              gap: "14px",
+              gap: "13px",
               marginTop: "5px",
               fontSize: "9px",
               color: "#444444",
@@ -193,23 +209,36 @@ const Resume = ({ data }) => {
         </div>
 
         {/* =================================
-            SECTION COMPONENT
+            STYLES
         ================================= */}
 
         <style>
           {`
             .resume-section {
-              margin-top: 9px;
+              margin-top: 8px;
             }
 
             .resume-section-title {
-              font-size: 14px;
-              font-weight: 800;
+              font-size: 13px;
+              font-weight: 700;
               text-transform: uppercase;
+              letter-spacing: 0.3px;
               margin: 0 0 5px 0;
-              padding-bottom: 4px;
-              border-bottom: 1px solid #bfc3c8;
-              color: #111111;
+              padding-bottom: 3px;
+              border-bottom: 1px solid #dddddd;
+              color: #222222;
+              position: relative;
+            }
+
+            .resume-section-title::after {
+              content: "";
+              display: block;
+              width: 32px;
+              height: 2px;
+              background: #d85b9b;
+              position: absolute;
+              bottom: -1px;
+              left: 0;
             }
 
             .resume-text {
@@ -220,6 +249,7 @@ const Resume = ({ data }) => {
 
             .resume-small {
               font-size: 9.5px;
+              line-height: 1.35;
               color: #555555;
             }
 
@@ -230,6 +260,7 @@ const Resume = ({ data }) => {
             .resume-item-title {
               font-size: 10.5px;
               font-weight: 700;
+              line-height: 1.35;
               color: #111111;
             }
 
@@ -244,7 +275,7 @@ const Resume = ({ data }) => {
             .resume-two-column {
               display: grid;
               grid-template-columns: 1fr 1fr;
-              column-gap: 35px;
+              column-gap: 30px;
             }
 
             @media print {
@@ -439,9 +470,7 @@ const Resume = ({ data }) => {
                       {Array.isArray(
                         project.technologiesUsed
                       )
-                        ? project.technologiesUsed.join(
-                            ", "
-                          )
+                        ? project.technologiesUsed.join(", ")
                         : project.technologiesUsed}
                     </div>
                   )}
@@ -474,8 +503,7 @@ const Resume = ({ data }) => {
                   {certification?.issuingOrganization && (
                     <span>
                       {" "}
-                      -{" "}
-                      {certification.issuingOrganization}
+                      - {certification.issuingOrganization}
                     </span>
                   )}
 
@@ -574,6 +602,7 @@ const Resume = ({ data }) => {
             </div>
           </section>
         )}
+
       </div>
     </div>
   );
