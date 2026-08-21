@@ -406,15 +406,12 @@ public class ResumeServiceImpl implements ResumeService {
     // VALIDATE COMPLETE RESUME
     // =====================================================
 
-    private boolean isCompleteResume(
-            Map<String, Object> resume
-    ) {
+    private boolean isCompleteResume(Map<String, Object> resume) {
 
         if (resume == null) {
             return false;
         }
 
-        // Required top-level keys
         String[] requiredKeys = {
                 "personalInformation",
                 "summary",
@@ -429,37 +426,18 @@ public class ResumeServiceImpl implements ResumeService {
         };
 
         for (String key : requiredKeys) {
-
             if (!resume.containsKey(key)) {
-
-                System.out.println(
-                        "Missing required key: " + key
-                );
-
+                System.out.println("Missing required key: " + key);
                 return false;
             }
         }
 
-        // -------------------------------------------------
-        // Personal information
-        // -------------------------------------------------
-
-        Object personalInformation =
-                resume.get("personalInformation");
-
-        if (!(personalInformation instanceof Map)) {
-
-            System.out.println(
-                    "personalInformation is not an object."
-            );
-
+        // Personal information must be an object
+        if (!(resume.get("personalInformation") instanceof Map)) {
             return false;
         }
 
-        // -------------------------------------------------
-        // Required arrays
-        // -------------------------------------------------
-
+        // These must be arrays
         String[] arrayKeys = {
                 "skills",
                 "experience",
@@ -475,19 +453,35 @@ public class ResumeServiceImpl implements ResumeService {
 
             Object value = resume.get(key);
 
-            if (!(value instanceof java.util.List)) {
-
-                System.out.println(
-                        key + " is not an array."
-                );
-
+            if (!(value instanceof java.util.List<?>)) {
+                System.out.println(key + " is not an array.");
                 return false;
             }
+        }
+
+        // Check that important sections are not empty
+        if (isEmptyList(resume.get("skills"))) {
+            System.out.println("Skills is empty.");
+            return false;
+        }
+
+        if (isEmptyList(resume.get("education"))) {
+            System.out.println("Education is empty.");
+            return false;
+        }
+
+        if (isEmptyList(resume.get("projects"))) {
+            System.out.println("Projects is empty.");
+            return false;
         }
 
         return true;
     }
 
+    private boolean isEmptyList(Object value) {
+        return !(value instanceof java.util.List<?> list)
+                || list.isEmpty();
+    }
     // =====================================================
     // CLEAN AI RESPONSE
     // =====================================================
