@@ -13,27 +13,17 @@ const Resume = ({ data }) => {
   const personal = data?.personalInformation || {};
 
   const skills = Array.isArray(data?.skills) ? data.skills : [];
-  const experience = Array.isArray(data?.experience)
-    ? data.experience
-    : [];
-  const education = Array.isArray(data?.education)
-    ? data.education
-    : [];
+  const experience = Array.isArray(data?.experience) ? data.experience : [];
+  const education = Array.isArray(data?.education) ? data.education : [];
   const certifications = Array.isArray(data?.certifications)
     ? data.certifications
     : [];
-  const projects = Array.isArray(data?.projects)
-    ? data.projects
-    : [];
+  const projects = Array.isArray(data?.projects) ? data.projects : [];
   const achievements = Array.isArray(data?.achievements)
     ? data.achievements
     : [];
-  const languages = Array.isArray(data?.languages)
-    ? data.languages
-    : [];
-  const interests = Array.isArray(data?.interests)
-    ? data.interests
-    : [];
+  const languages = Array.isArray(data?.languages) ? data.languages : [];
+  const interests = Array.isArray(data?.interests) ? data.interests : [];
 
   return (
     <div
@@ -217,29 +207,16 @@ const Resume = ({ data }) => {
             .resume-section {
               margin-top: 8px;
             }
-
             .resume-section-title {
-              font-size: 13px;
-              font-weight: 700;
-              text-transform: uppercase;
-              letter-spacing: 0.3px;
-              margin: 0 0 5px 0;
-              padding-bottom: 3px;
-              border-bottom: 1px solid #dddddd;
-              color: #222222;
-              position: relative;
-            }
-
-            .resume-section-title::after {
-              content: "";
-              display: block;
-              width: 32px;
-              height: 2px;
-              background: #d85b9b;
-              position: absolute;
-              bottom: -1px;
-              left: 0;
-            }
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin: 0 0 5px 0;
+  padding-bottom: 3px;
+  color: #222222;
+}
+          
 
             .resume-text {
               font-size: 10.5px;
@@ -306,13 +283,9 @@ const Resume = ({ data }) => {
 
         {data?.summary && (
           <section className="resume-section">
-            <h2 className="resume-section-title">
-              Professional Summary
-            </h2>
+            <h2 className="resume-section-title">Professional Summary</h2>
 
-            <div className="resume-text">
-              {data.summary}
-            </div>
+            <div className="resume-text">{data.summary}</div>
           </section>
         )}
 
@@ -322,29 +295,20 @@ const Resume = ({ data }) => {
 
         {education.length > 0 && (
           <section className="resume-section">
-            <h2 className="resume-section-title">
-              Education
-            </h2>
+            <h2 className="resume-section-title">Education</h2>
 
             {education.map((edu, index) => (
-              <div
-                key={index}
-                className="resume-item"
-              >
+              <div key={index} className="resume-item">
                 {edu.degree && (
-                  <div className="resume-item-title">
-                    {edu.degree}
-                  </div>
+                  <div className="resume-item-title">{edu.degree}</div>
                 )}
 
                 <div className="resume-small">
                   {edu.university && edu.university}
 
-                  {edu.location &&
-                    `, ${edu.location}`}
+                  {edu.location && `, ${edu.location}`}
 
-                  {edu.graduationYear &&
-                    ` | ${edu.graduationYear}`}
+                  {edu.graduationYear && ` | ${edu.graduationYear}`}
                 </div>
               </div>
             ))}
@@ -357,9 +321,7 @@ const Resume = ({ data }) => {
 
         {skills.length > 0 && (
           <section className="resume-section">
-            <h2 className="resume-section-title">
-              Technical Skills
-            </h2>
+            <h2 className="resume-section-title">Technical Skills</h2>
 
             <div className="resume-two-column">
               {skills.map((skill, index) => (
@@ -400,15 +362,10 @@ const Resume = ({ data }) => {
 
         {experience.length > 0 && (
           <section className="resume-section">
-            <h2 className="resume-section-title">
-              Experience
-            </h2>
+            <h2 className="resume-section-title">Experience</h2>
 
             {experience.map((exp, index) => (
-              <div
-                key={index}
-                className="resume-item"
-              >
+              <div key={index} className="resume-item">
                 <div className="resume-item-title">
                   {exp.jobTitle || ""}
                   {exp.company && ` | ${exp.company}`}
@@ -416,15 +373,11 @@ const Resume = ({ data }) => {
                 </div>
 
                 {exp.duration && (
-                  <div className="resume-small">
-                    {exp.duration}
-                  </div>
+                  <div className="resume-small">{exp.duration}</div>
                 )}
 
                 {exp.responsibility && (
-                  <div className="resume-text">
-                    {exp.responsibility}
-                  </div>
+                  <div className="resume-text">{exp.responsibility}</div>
                 )}
               </div>
             ))}
@@ -437,25 +390,16 @@ const Resume = ({ data }) => {
 
         {projects.length > 0 && (
           <section className="resume-section">
-            <h2 className="resume-section-title">
-              Projects
-            </h2>
+            <h2 className="resume-section-title">Projects</h2>
 
             {projects.map((project, index) => (
-              <div
-                key={index}
-                className="resume-item"
-              >
+              <div key={index} className="resume-item">
                 {project.title && (
-                  <div className="resume-item-title">
-                    {project.title}
-                  </div>
+                  <div className="resume-item-title">{project.title}</div>
                 )}
 
                 {project.description && (
-                  <div className="resume-text">
-                    {project.description}
-                  </div>
+                  <div className="resume-text">{project.description}</div>
                 )}
 
                 {project.technologiesUsed &&
@@ -467,9 +411,7 @@ const Resume = ({ data }) => {
                       }}
                     >
                       <strong>Technologies:</strong>{" "}
-                      {Array.isArray(
-                        project.technologiesUsed
-                      )
+                      {Array.isArray(project.technologiesUsed)
                         ? project.technologiesUsed.join(", ")
                         : project.technologiesUsed}
                     </div>
@@ -485,37 +427,17 @@ const Resume = ({ data }) => {
 
         {certifications.length > 0 && (
           <section className="resume-section">
-            <h2 className="resume-section-title">
-              Certifications
-            </h2>
+            <h2 className="resume-section-title">Certifications</h2>
 
-            {certifications.map(
-              (certification, index) => (
-                <div
-                  key={index}
-                  className="resume-bullet"
-                >
-                  •{" "}
-                  <strong>
-                    {certification?.title || ""}
-                  </strong>
-
-                  {certification?.issuingOrganization && (
-                    <span>
-                      {" "}
-                      - {certification.issuingOrganization}
-                    </span>
-                  )}
-
-                  {certification?.year && (
-                    <span>
-                      {" "}
-                      ({certification.year})
-                    </span>
-                  )}
-                </div>
-              )
-            )}
+            {certifications.map((certification, index) => (
+              <div key={index} className="resume-bullet">
+                • <strong>{certification?.title || ""}</strong>
+                {certification?.issuingOrganization && (
+                  <span> - {certification.issuingOrganization}</span>
+                )}
+                {certification?.year && <span> ({certification.year})</span>}
+              </div>
+            ))}
           </section>
         )}
 
@@ -525,43 +447,27 @@ const Resume = ({ data }) => {
 
         {achievements.length > 0 && (
           <section className="resume-section">
-            <h2 className="resume-section-title">
-              Achievements
-            </h2>
+            <h2 className="resume-section-title">Achievements</h2>
 
-            {achievements.map(
-              (achievement, index) => (
-                <div
-                  key={index}
-                  className="resume-item"
-                >
-                  <div className="resume-bullet">
-                    •{" "}
-                    <strong>
-                      {achievement?.title || ""}
-                    </strong>
-
-                    {achievement?.year && (
-                      <span>
-                        {" "}
-                        ({achievement.year})
-                      </span>
-                    )}
-                  </div>
-
-                  {achievement?.extraInformation && (
-                    <div
-                      className="resume-small"
-                      style={{
-                        marginLeft: "13px",
-                      }}
-                    >
-                      {achievement.extraInformation}
-                    </div>
-                  )}
+            {achievements.map((achievement, index) => (
+              <div key={index} className="resume-item">
+                <div className="resume-bullet">
+                  • <strong>{achievement?.title || ""}</strong>
+                  {achievement?.year && <span> ({achievement.year})</span>}
                 </div>
-              )
-            )}
+
+                {achievement?.extraInformation && (
+                  <div
+                    className="resume-small"
+                    style={{
+                      marginLeft: "13px",
+                    }}
+                  >
+                    {achievement.extraInformation}
+                  </div>
+                )}
+              </div>
+            ))}
           </section>
         )}
 
@@ -571,9 +477,7 @@ const Resume = ({ data }) => {
 
         {languages.length > 0 && (
           <section className="resume-section">
-            <h2 className="resume-section-title">
-              Languages
-            </h2>
+            <h2 className="resume-section-title">Languages</h2>
 
             <div className="resume-text">
               {languages
@@ -590,9 +494,7 @@ const Resume = ({ data }) => {
 
         {interests.length > 0 && (
           <section className="resume-section">
-            <h2 className="resume-section-title">
-              Interests
-            </h2>
+            <h2 className="resume-section-title">Interests</h2>
 
             <div className="resume-text">
               {interests
@@ -602,7 +504,6 @@ const Resume = ({ data }) => {
             </div>
           </section>
         )}
-
       </div>
     </div>
   );
